@@ -312,17 +312,3 @@ cd frontend && npm run build
 3. Commit de cambios
 4. Push al branch
 5. Pull Request
-
-## Licencia
-
-MIT License - Ver archivo LICENSE para detalles
-
-## Soporte
-
-Para reportar issues o solicitar ayuda:
-- Crear un issue en GitHub
-- Contactar al equipo de desarrollo
-
----
-
-**AppCitas** - Simplificando la gestion de reservas para tu negocio
