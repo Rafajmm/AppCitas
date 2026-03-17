@@ -1,0 +1,79 @@
+nohup: no se tendrá en cuenta la entrada
+[dotenv@17.3.1] injecting env (10) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +41ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDbModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEmailModule dependencies initialized[39m[38;5;3m +5ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAvailabilityModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPublicModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAdminModule dependencies initialized[39m[38;5;3m +1ms[39m
+Serving static files from: {
+  publicPath: '/home/rafa/Documentos/practicas2026/AppCitas/backend/public',
+  uploadsPath: '/home/rafa/Documentos/practicas2026/AppCitas/backend/uploads'
+}
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAvailabilityController {/public/:slug/availability}:[39m[38;5;3m +14ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/:slug/availability/slots, GET} route[39m[38;5;3m +3ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPublicController {/public}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/negocios, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/:slug, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/:slug/servicios, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/:slug/bookings, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/:slug/availability, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/confirm/:token, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/public/resend-confirmation, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminAuthController {/admin/auth}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/auth/login, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminNegociosController {/admin/negocios}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/negocios, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/negocios/:negocioId, PATCH} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/negocios/:negocioId/upload-logo, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminServiciosController {/admin/servicios}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/servicios, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/servicios, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/servicios/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/servicios/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminEmpleadosController {/admin/empleados}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleados, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleados, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleados/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleados/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminEmpleadoServicioController {/admin/empleado-servicio}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleado-servicio/:empleadoId, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleado-servicio, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/empleado-servicio/:empleadoId/:servicioId, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminHorariosController {/admin/horarios}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/horarios/negocio/:negocioId, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/horarios/negocio/:negocioId, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/horarios/empleado/:empleadoId, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/horarios/empleado/:empleadoId, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminBloqueosController {/admin/bloqueos}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/bloqueos, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/bloqueos, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/bloqueos/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAdminCitasController {/admin/citas}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/citas, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/admin/citas/:id, PATCH} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 32810  - [39m12/03/2026, 16:51:43 [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +4ms[39m
+[31m[Nest] 32810  - [39m12/03/2026, 16:51:43 [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +4ms[39m
+node:net:1908
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+    at listenInCluster (node:net:1965:12)
+    at Server.listen (node:net:2067:7)
+    at ExpressAdapter.listen (/home/rafa/Documentos/practicas2026/AppCitas/backend/node_modules/@nestjs/platform-express/adapters/express-adapter.js:95:32)
+    at /home/rafa/Documentos/practicas2026/AppCitas/backend/node_modules/@nestjs/core/nest-application.js:183:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (/home/rafa/Documentos/practicas2026/AppCitas/backend/node_modules/@nestjs/core/nest-application.js:173:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async bootstrap (/home/rafa/Documentos/practicas2026/AppCitas/backend/src/main.js:22:3) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v20.20.0
