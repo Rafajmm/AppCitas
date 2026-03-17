@@ -1,105 +1,105 @@
-# 📅 AppCitas - Sistema de Reservas y Gestión de Citas
+# AppCitas - Sistema de Reservas y Gestion de Citas
 
-Una aplicación completa para la gestión de reservas y citas diseñada para negocios de servicios. Permite a los clientes reservar servicios online y a los administradores gestionar su agenda, personalizar su negocio y confirmar citas a través de correo de confirmación. La aplicación está administrada por un superadmin que puede crear y gestionar múltiples negocios.
+Una aplicacion completa para la gestion de reservas y citas disenada para negocios de servicios. Permite a los clientes reservar servicios online y a los administradores gestionar su agenda, personalizar su negocio y confirmar citas a traves de correo de confirmacion. La aplicacion esta administrada por un superadmin que puede crear y gestionar multiples negocios.
 
-## 🌟 Características Principales
+## Caracteristicas Principales
 
-### 🏢 Gestión de Negocios
-- **Panel de Superadministrador**: Creación y gestión de múltiples negocios
-- **Panel de Administración**: Gestión completa del negocio
-- **Personalización de Marca**: Logo, colores y descripción personalizable
-- **Configuración de Contacto**: WhatsApp, sitio web y datos de contacto
-- **Gestión de Disponibilidad**: Control de horarios y bloqueos
+### Gestion de Negocios
+- **Panel de Superadministrador**: Creacion y gestion de multiples negocios
+- **Panel de Administracion**: Gestion completa del negocio
+- **Personalizacion de Marca**: Logo, colores y descripcion personalizable
+- **Configuracion de Contacto**: WhatsApp, sitio web y datos de contacto
+- **Gestion de Disponibilidad**: Control de horarios y bloqueos
 
-### 📅 Sistema de Reservas
-- **Calendario Interactivo**: Visualización de disponibilidad en tiempo real
-- **Selección de Servicios**: Múltiples servicios por cita
-- **Asignación de Empleados**: Selección de profesional específico
-- **Confirmación por Email**: Sistema de confirmación automática
+### Sistema de Reservas
+- **Calendario Interactivo**: Visualizacion de disponibilidad en tiempo real
+- **Seleccion de Servicios**: Multiples servicios por cita
+- **Asignacion de Empleados**: Seleccion de profesional especifico
+- **Confirmacion por Email**: Sistema de confirmacion automatica
 
-### 👥 Gestión de Personal
-- **Empleados**: Alta, baja y gestión de profesionales
-- **Asignación de Servicios**: Configuración de servicios por empleado
+### Gestion de Personal
+- **Empleados**: Alta, baja y gestion de profesionales
+- **Asignacion de Servicios**: Configuracion de servicios por empleado
 - **Horarios Personalizados**: Horarios individuales por empleado
 
-### 🎨 Personalización Avanzada
+### Personalizacion Avanzada
 - **Upload de Logo**: Subida de archivos de imagen (JPEG, PNG, GIF, WebP)
 - **Colores de Marca**: Selector de colores primario, secundario y acento
-- **Descripción del Negocio**: Campo de texto completo para descripción
+- **Descripcion del Negocio**: Campo de texto completo para descripcion
 - **Vista Previa**: Preview en tiempo real de cambios
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnologico
 
 ### Backend
 - **NestJS**: Framework Node.js para el backend
 - **PostgreSQL**: Base de datos relacional
-- **JWT**: Autenticación y autorización
-- **Nodemailer**: Envío de emails con Ethereal Email (para las pruebas de desarrollo)
-- **Multer**: Gestión de subida de archivos para los logos de los negocios
+- **JWT**: Autenticacion y autorizacion
+- **Nodemailer**: Envio de emails con Ethereal Email (para las pruebas de desarrollo)
+- **Multer**: Gestion de subida de archivos para los logos de los negocios
 
 ### Frontend
 - **React**: Biblioteca JavaScript para UI
-- **React Router**: Navegación y routing
-- **Bootstrap**: Framework CSS para diseño responsive
+- **React Router**: Navegacion y routing
+- **Bootstrap**: Framework CSS para diseno responsive
 - **React Bootstrap**: Componentes Bootstrap para React
 
 ### Base de Datos
-- **PostgreSQL**: Sistema de gestión de bases de datos
-- **UUID**: Identificadores únicos para entidades
-- **Timestamps**: Control de creación y actualización
+- **PostgreSQL**: Sistema de gestion de bases de datos
+- **UUID**: Identificadores unicos para entidades
+- **Timestamps**: Control de creacion y actualizacion
 
-## 📋 Funcionalidades Detalladas
+## Funcionalidades Detalladas
 
-### 🔐 Sistema de Autenticación
+### Sistema de Autenticacion
 - Login de administradores con JWT
 - Roles de usuario (superadmin, admin)
-- Rutas protegidas en el panel de administración
+- Rutas protegidas en el panel de administracion
 - Manejo de sesiones y tokens
 
-### 📇 Gestión de Servicios
+### Gestion de Servicios
 - CRUD completo de servicios
-- Configuración de precios y duración
-- Activación/Desactivación de servicios
-- Asignación a empleados específicos
+- Configuracion de precios y duracion
+- Activacion/Desactivacion de servicios
+- Asignacion a empleados especificos
 
-### 🕒 Gestión de Horarios
-- Configuración de horarios por negocio
+### Gestion de Horarios
+- Configuracion de horarios por negocio
 - Horarios individuales por empleado
-- Días laborables y horarios de apertura/cierre
-- Validación de disponibilidad
+- Dias laborables y horarios de apertura/cierre
+- Validacion de disponibilidad
 
-### 🚫 Sistema de Bloqueos
-- Bloqueos por día completo
+### Sistema de Bloqueos
+- Bloqueos por dia completo
 - Bloqueos por rangos horarios
-- Bloqueos por empleado específico
-- Gestión de unavailable times
+- Bloqueos por empleado especifico
+- Gestion de unavailable times
 
-### 📧 Sistema de Email
-- Envío de emails de confirmación
-- Tokens únicos de confirmación
+### Sistema de Email
+- Envio de emails de confirmacion
+- Tokens unicos de confirmacion
 - Plantillas de email personalizables
-- Integración con Ethereal Email para desarrollo
+- Integracion con Ethereal Email para desarrollo
 
-### 🖼️ Sistema de Upload
+### Sistema de Upload
 - Subida de logos de negocio
-- Validación de tipo y tamaño de archivo
-- Almacenamiento local con URLs únicas
-- Serving de archivos estáticos
+- Validacion de tipo y tamano de archivo
+- Almacenamiento local con URLs unicas
+- Serving de archivos estaticos
 
-### 📊 Panel de Administración
-- Dashboard con estadísticas
-- Gestión de citas y reservas
+### Panel de Administracion
+- Dashboard con estadisticas
+- Gestion de citas y reservas
 - Vista de calendario y disponibilidad
-- Configuración del negocio
+- Configuracion del negocio
 
-## 🚀 Instalación y Configuración
+## Instalacion y Configuracion
 
 ### Prerrequisitos
 - Node.js 18+
 - PostgreSQL 13+
 - npm o yarn
 
-### Configuración del Backend
+### Configuracion del Backend
 ```bash
 cd backend
 npm install
@@ -108,26 +108,26 @@ cp .env.example .env
 npm run start:dev
 ```
 
-### Configuración del Frontend
+### Configuracion del Frontend
 ```bash
 cd frontend
 npm install
 npm start
 ```
 
-### Configuración de la Base de Datos
+### Configuracion de la Base de Datos
 ```bash
 # Crear base de datos
 createdb AppCitas
 
-# Ejecutar script de creación
+# Ejecutar script de creacion
 psql -d AppCitas -f scriptBD.sql
 
 # Ejecutar seed de datos (opcional)
 psql -d AppCitas -f seed.sql
 ```
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 AppCitas/
@@ -155,7 +155,7 @@ AppCitas/
 └── README.md
 ```
 
-## 🔧 Variables de Entorno
+## Variables de Entorno
 
 ### Backend (.env)
 ```
@@ -164,7 +164,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=AppCitas
 DB_USER=postgres
-DB_PASSWORD=1234postgres
+DB_PASSWORD=tu_password_db
 
 # JWT
 JWT_SECRET=your-secret-key
@@ -176,12 +176,12 @@ PORT=3001
 # Email (Ethereal Email)
 SMTP_HOST=smtp.ethereal.email
 SMTP_PORT=587
-SMTP_USER=leslie17@ethereal.email
-SMTP_PASS=W71XVjgPQMrZY1nzeV
+SMTP_USER=tu_correo_ethereal
+SMTP_PASS=tu_password_ethereal
 SMTP_SECURE=tls
 SMTP_FROM=noreply@appcitas.local
 
-# URL de la aplicación
+# URL de la aplicacion
 APP_BASE_URL=http://localhost:3001
 ```
 
@@ -190,9 +190,9 @@ APP_BASE_URL=http://localhost:3001
 REACT_APP_API_URL=http://localhost:3001
 ```
 
-## 📚 API Endpoints
+## API Endpoints
 
-### Rutas Públicas
+### Rutas Publicas
 - `GET /public/negocios` - Listar negocios
 - `GET /public/:slug` - Detalles de negocio
 - `GET /public/:slug/servicios` - Servicios de negocio
@@ -200,7 +200,7 @@ REACT_APP_API_URL=http://localhost:3001
 - `POST /public/:slug/bookings` - Crear reserva
 - `POST /public/confirm/:token` - Confirmar reserva
 
-### Rutas de Administración
+### Rutas de Administracion
 - `POST /admin/auth/login` - Login admin
 - `GET /admin/negocios` - Listar negocios del admin
 - `PATCH /admin/negocios/:id` - Actualizar negocio
@@ -221,71 +221,71 @@ REACT_APP_API_URL=http://localhost:3001
 - `GET /admin/citas` - Listar citas
 - `PATCH /admin/citas/:id` - Actualizar cita
 
-## 🎯 Flujo de Usuario
+## Flujo de Usuario
 
 ### Cliente
 1. **Explorar Negocios**: Lista de negocios disponibles
-2. **Ver Detalles**: Información completa del negocio y servicios
-3. **Seleccionar Servicios**: Elección de uno o múltiples servicios
-4. **Elegir Fecha/Hora**: Selección de disponibilidad en calendario
-5. **Completar Reserva**: Datos de contacto y confirmación
-6. **Recibir Email**: Email con enlace de confirmación
+2. **Ver Detalles**: Informacion completa del negocio y servicios
+3. **Seleccionar Servicios**: Eleccion de uno o multiples servicios
+4. **Elegir Fecha/Hora**: Seleccion de disponibilidad en calendario
+5. **Completar Reserva**: Datos de contacto y confirmacion
+6. **Recibir Email**: Email con enlace de confirmacion
 7. **Confirmar Cita**: Clic en enlace para confirmar reserva
 
 ### Administrador
-1. **Login**: Acceso al panel de administración
-2. **Dashboard**: Vista general de estadísticas
-3. **Gestión de Servicios**: CRUD de servicios y precios
-4. **Gestión de Empleados**: Alta y configuración de personal
-5. **Configuración de Horarios**: Definir disponibilidad
-6. **Gestión de Bloqueos**: Bloquear días/horas no disponibles
-7. **Personalización**: Logo, colores y descripción del negocio
-8. **Gestión de Citas**: Ver y gestionar reservas confirmadas
+1. **Login**: Acceso al panel de administracion
+2. **Dashboard**: Vista general de estadisticas
+3. **Gestion de Servicios**: CRUD de servicios y precios
+4. **Gestion de Empleados**: Alta y configuracion de personal
+5. **Configuracion de Horarios**: Definir disponibilidad
+6. **Gestion de Bloqueos**: Bloquear dias/horas no disponibles
+7. **Personalizacion**: Logo, colores y descripcion del negocio
+8. **Gestion de Citas**: Ver y gestionar reservas confirmadas
 
-## 🔒 Seguridad
+## Seguridad
 
-- **JWT Tokens**: Autenticación segura con tokens expirables
-- **Validación de Inputs**: Sanitización y validación con Joi
-- **Protección de Rutas**: Middleware de autenticación
-- **CORS**: Configuración de orígenes permitidos
-- **File Upload Validation**: Validación de tipo y tamaño de archivos
+- **JWT Tokens**: Autenticacion segura con tokens expirables
+- **Validacion de Inputs**: Sanitizacion y validacion con Joi
+- **Proteccion de Rutas**: Middleware de autenticacion
+- **CORS**: Configuracion de origenes permitidos
+- **File Upload Validation**: Validacion de tipo y tamano de archivos
 
-## 📧 Sistema de Email
+## Sistema de Email
 
-### Configuración
+### Configuracion
 - **Mailtrap**: Sandbox para desarrollo y testing
-- **Nodemailer**: Librería para envío de emails
+- **Nodemailer**: Libreria para envio de emails
 - **Templates**: Plantillas HTML para emails
 
 ### Tipos de Email
-- **Confirmación de Reserva**: Email con token de confirmación
+- **Confirmacion de Reserva**: Email con token de confirmacion
 - **Recordatorios**: (Futuro) Emails de recordatorio de cita
 
-## 🎨 Personalización del Negocio
+## Personalizacion del Negocio
 
 ### Campos Configurables
 - **Logo**: Upload de archivo de imagen
 - **Colores**: Primario, secundario y acento
-- **Descripción**: Texto completo del negocio
+- **Descripcion**: Texto completo del negocio
 - **Contacto**: WhatsApp y sitio web
-- **Configuración**: Antelación mínima y tiempo de confirmación
+- **Configuracion**: Antelacion minima y tiempo de confirmacion
 
 ### Proceso de Upload
-1. **Selección de Archivo**: Input file con validación
+1. **Seleccion de Archivo**: Input file con validacion
 2. **Preview**: Vista previa en tiempo real
-3. **Upload**: Subida al servidor con validación
-4. **Storage**: Guardado local con URL única
-5. **Actualización**: Actualización en base de datos
+3. **Upload**: Subida al servidor con validacion
+4. **Storage**: Guardado local con URL unica
+5. **Actualizacion**: Actualizacion en base de datos
 
-## 🔄 Estados de las Citas
+## Estados de las Citas
 
 - **pendiente**: Cita creada pero no confirmada
 - **confirmada**: Cita confirmada por el cliente
-- **completada**: Cita realizada con éxito
+- **completada**: Cita realizada con exito
 - **cancelada**: Cita cancelada
-- **no_show**: Cliente no asistió
+- **no_show**: Cliente no asistio
 
-## 🚀 Despliegue
+## Despliegue
 
 ### Desarrollo
 ```bash
@@ -296,7 +296,7 @@ cd backend && npm run start:dev
 cd frontend && npm start
 ```
 
-### Producción
+### Produccion
 ```bash
 # Backend
 cd backend && npm run build && npm start
@@ -305,7 +305,7 @@ cd backend && npm run build && npm start
 cd frontend && npm run build
 ```
 
-## 🤝 Contribución
+## Contribucion
 
 1. Fork del repositorio
 2. Crear feature branch
@@ -313,11 +313,11 @@ cd frontend && npm run build
 4. Push al branch
 5. Pull Request
 
-## 📄 Licencia
+## Licencia
 
 MIT License - Ver archivo LICENSE para detalles
 
-## 🆘 Soporte
+## Soporte
 
 Para reportar issues o solicitar ayuda:
 - Crear un issue en GitHub
@@ -325,4 +325,4 @@ Para reportar issues o solicitar ayuda:
 
 ---
 
-**AppCitas** - Simplificando la gestión de reservas para tu negocio 📅✨
+**AppCitas** - Simplificando la gestion de reservas para tu negocio
