@@ -22,6 +22,8 @@ function BookingFlow() {
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [availableEmployees, setAvailableEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [step, setStep] = useState(1);
@@ -54,7 +56,12 @@ function BookingFlow() {
       const serviceIds = services.map(s => s.id);
       const data = await publicApi.getAvailability(slug, dateStr, serviceIds);
       
-      setSlots(data.slots || []);
+      const processedSlots = (data.slots || []).map(slot => ({
+        ...slot,
+        availableEmployees: slot.availableEmployees || [],
+      }));
+      
+      setSlots(processedSlots);
     } catch (err) {
       console.error('Error loading slots:', err);
       setError('Error al cargar disponibilidad');
@@ -102,6 +109,7 @@ function BookingFlow() {
         serviceIds: services.map(s => s.id),
         date: dateStr,
         startTime: selectedSlot.start,
+        employeeId: selectedEmployee?.id || null,
         client: {
           name: formData.nombre,
           email: formData.email || null,
@@ -294,7 +302,15 @@ function BookingFlow() {
                             ? `${primaryColor}20` 
                             : '0 2px 8px rgba(0,0,0,0.04)'
                         }}
-                        onClick={() => setSelectedSlot(slot)}
+                        onClick={() => {
+                          setSelectedSlot(slot);
+                          setAvailableEmployees(slot.availableEmployees || []);
+                          if (slot.availableEmployees?.length === 1) {
+                            setSelectedEmployee(slot.availableEmployees[0]);
+                          } else {
+                            setSelectedEmployee(null);
+                          }
+                        }}
                         onMouseEnter={(e) => {
                           if (selectedSlot?.start !== slot.start) {
                             e.currentTarget.style.background = `${primaryColor}08`;
@@ -318,11 +334,46 @@ function BookingFlow() {
                           {slot.start}
                         </div>
                         <small className="text-muted">{slot.durationMinutes} min</small>
+                        {slot.availableEmployees?.length > 0 && (
+                          <div 
+                            className="mt-1"
+                            style={{ 
+                              fontSize: '0.7rem',
+                              color: slot.availableEmployees.length > 1 ? secondaryColor : '#6b7280'
+                            }}
+                          >
+                            {slot.availableEmployees.length === 1 
+                              ? '1 empleado' 
+                              : `${slot.availableEmployees.length} empleados`}
+                          </div>
+                        )}
                       </div>
                     </Col>
                   ))}
                 </Row>
               </>
+            )}
+            
+            {selectedSlot && availableEmployees.length > 1 && (
+              <Card className="mt-4 mx-auto" style={{ maxWidth: 400 }}>
+                <Card.Body>
+                  <h6 className="fw-bold mb-3">Selecciona un profesional</h6>
+                  <Form.Group>
+                    <Form.Select
+                      value={selectedEmployee?.id || ''}
+                      onChange={(e) => {
+                        const emp = availableEmployees.find(emp => emp.id === e.target.value);
+                        setSelectedEmployee(emp);
+                      }}
+                    >
+                      <option value="">Selecciona un profesional...</option>
+                      {availableEmployees.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Card.Body>
+              </Card>
             )}
             
             <div className="text-center mt-4">
@@ -338,7 +389,7 @@ function BookingFlow() {
                   background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd)`,
                   border: 'none'
                 }}
-                disabled={!selectedSlot}
+                disabled={!selectedSlot || (availableEmployees.length > 1 && !selectedEmployee)}
                 onClick={() => setStep(3)}
               >
                 Continuar
@@ -477,6 +528,20 @@ function BookingFlow() {
                         />
                         <span className="text-muted">{selectedSlot?.start}</span>
                       </div>
+                      {selectedEmployee && (
+                        <div className="d-flex align-items-center mt-2">
+                          <div 
+                            style={{ 
+                              width: 8, 
+                              height: 8, 
+                              borderRadius: '50%', 
+                              background: '#8b5cf6',
+                              marginRight: 12
+                            }} 
+                          />
+                          <span className="text-muted">{selectedEmployee.nombre}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <ListGroup variant="flush" className="mb-3">

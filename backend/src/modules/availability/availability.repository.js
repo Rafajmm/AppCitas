@@ -31,6 +31,21 @@ class AvailabilityRepository {
     return rows;
   }
 
+  async getEmployeesForServices(negocioId, serviceIds) {
+    const { rows } = await this.pool.query(
+      `SELECT DISTINCT e.id, e.nombre
+       FROM empleados e
+       INNER JOIN empleado_servicio es ON es.empleado_id = e.id
+       WHERE e.negocio_id = $1
+         AND e.deleted_at IS NULL
+         AND e.activo = true
+         AND es.servicio_id = ANY($2::uuid[])
+         AND es.deleted_at IS NULL`,
+      [negocioId, serviceIds],
+    );
+    return rows;
+  }
+
   async getNegocioScheduleForDay(negocioId, dayOfWeek) {
     const { rows } = await this.pool.query(
       `SELECT hora_apertura, hora_cierre

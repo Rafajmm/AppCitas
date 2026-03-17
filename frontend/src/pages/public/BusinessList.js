@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, InputGroup } from 'react-bootstrap';
 import { Shop, ArrowRight, Search } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
-import { publicApi } from '../../services/api';
+import { publicApi, getImageUrl } from '../../services/api';
 import { SkeletonText } from '../../components/SkeletonLoader';
 
 function BusinessList() {
@@ -18,7 +18,17 @@ function BusinessList() {
 
   const loadBusinesses = async () => {
     try {
+      setLoading(true);
       const data = await publicApi.getBusinesses();
+      console.log('🏢 Businesses Debug:', data);
+      data.forEach((business, index) => {
+        console.log(`🏢 Business ${index}:`, {
+          id: business.id,
+          nombre: business.nombre,
+          logo_url: business.logo_url,
+          hasLogo: !!business.logo_url
+        });
+      });
       setBusinesses(data);
     } catch (err) {
       setError('Error al cargar negocios');
@@ -149,7 +159,7 @@ function BusinessList() {
                         }}
                       >
                         <img
-                          src={business.logo_url}
+                          src={getImageUrl(business.logo_url)}
                           alt={business.nombre}
                           className="w-100 h-100"
                           style={{ objectFit: 'cover' }}

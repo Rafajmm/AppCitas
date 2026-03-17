@@ -1,4 +1,45 @@
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// Detectar automáticamente si estamos en red o localhost
+const getApiBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Si accedemos desde la red, usar la IP actual
+  const currentHost = window.location.hostname;
+  if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+    return `http://${currentHost}:3001`;
+  }
+  
+  return 'http://localhost:3001';
+};
+
+const API_BASE = getApiBaseUrl();
+
+// Función para obtener URLs de imágenes que funcione tanto local como en red
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  
+  // Si la imagen ya tiene URL completa, retornarla
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+  
+  // Construir URL base para imágenes
+  const currentHost = window.location.hostname;
+  const baseUrl = currentHost !== 'localhost' && currentHost !== '127.0.0.1' 
+    ? `http://${currentHost}:3001` 
+    : 'http://localhost:3001';
+  
+  // Quitar /uploads inicial si existe para evitar duplicación
+  const cleanPath = imagePath.startsWith('/uploads/') ? imagePath.substring(8) : 
+                    imagePath.startsWith('uploads/') ? imagePath.substring(7) : 
+                    imagePath;
+  
+  const finalUrl = `${baseUrl}/uploads/${cleanPath}`;
+  console.log('🖼️ Image URL Debug:', { imagePath, currentHost, baseUrl, cleanPath, finalUrl });
+  
+  return finalUrl;
+};
 
 async function fetchWithAuth(url, options = {}, token = null) {
   const headers = {
@@ -122,18 +163,6 @@ export const adminApi = {
     method: 'DELETE',
   }, token),
   
-  // Schedules
-  getBusinessSchedules: (token, negocioId) => fetchWithAuth(`/admin/horarios/negocio/${negocioId}`, {}, token),
-  updateBusinessSchedules: (token, negocioId, data) => fetchWithAuth(`/admin/horarios/negocio/${negocioId}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }, token),
-  getEmployeeSchedules: (token, employeeId) => fetchWithAuth(`/admin/horarios/empleado/${employeeId}`, {}, token),
-  updateEmployeeSchedules: (token, employeeId, data) => fetchWithAuth(`/admin/horarios/empleado/${employeeId}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }, token),
-  
   // Blockages
   getBlockages: (token, params = {}) => {
     const query = new URLSearchParams(params).toString();
@@ -147,18 +176,18 @@ export const adminApi = {
     method: 'DELETE',
   }, token),
 
-  // Business Schedules
-  getBusinessSchedules: (token, negocioId) => fetchWithAuth(`/admin/business-schedules?negocio_id=${negocioId}`, {}, token),
-  updateBusinessSchedules: (token, negocioId, schedules) => fetchWithAuth(`/admin/business-schedules/${negocioId}`, {
+  // Business Schedules (usando endpoints existentes)
+  getBusinessSchedules: (token, negocioId) => fetchWithAuth(`/admin/horarios/negocio/${negocioId}`, {}, token),
+  updateBusinessSchedules: (token, negocioId, schedules) => fetchWithAuth(`/admin/horarios/negocio/${negocioId}`, {
     method: 'PUT',
-    body: JSON.stringify({ schedules }),
+    body: JSON.stringify(schedules),
   }, token),
   
-  // Employee Schedules  
-  getEmployeeSchedules: (token, employeeId) => fetchWithAuth(`/admin/employee-schedules/${employeeId}`, {}, token),
-  updateEmployeeSchedules: (token, employeeId, schedules) => fetchWithAuth(`/admin/employee-schedules/${employeeId}`, {
+  // Employee Schedules (usando endpoints existentes)
+  getEmployeeSchedules: (token, employeeId) => fetchWithAuth(`/admin/horarios/empleado/${employeeId}`, {}, token),
+  updateEmployeeSchedules: (token, employeeId, schedules) => fetchWithAuth(`/admin/horarios/empleado/${employeeId}`, {
     method: 'PUT',
-    body: JSON.stringify({ schedules }),
+    body: JSON.stringify(schedules),
   }, token),
   
   // Appointments
@@ -220,3 +249,6 @@ export const adminApi = {
   // Estadísticas por negocio
   getNegocioEstadisticas: (token, negocioId) => fetchWithAuth(`/superadmin/negocios/${negocioId}/estadisticas`, {}, token),
 };
+
+// Exportar la función para construir URLs de imágenes
+export { getImageUrl };

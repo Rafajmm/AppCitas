@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Spinner, Badge, ListGroup } from 'react-bootstrap';
 import { ArrowLeft, Clock, Cash, ArrowRight } from 'react-bootstrap-icons';
-import { publicApi } from '../../services/api';
+import { publicApi, getImageUrl } from '../../services/api';
 import { useTheme } from '../../contexts/ThemeContext';
 
 function BusinessDetail() {
@@ -85,7 +85,7 @@ function BusinessDetail() {
         <div className="d-flex align-items-center mb-3">
           {business.logo_url ? (
             <img
-              src={business.logo_url}
+              src={getImageUrl(business.logo_url)}
               alt={business.nombre}
               className="rounded-circle me-3"
               style={{

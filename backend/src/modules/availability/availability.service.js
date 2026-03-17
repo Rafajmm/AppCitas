@@ -33,18 +33,15 @@ class AvailabilityService {
     let baseOpen = timeToMinutes(negocioSchedule.hora_apertura);
     let baseClose = timeToMinutes(negocioSchedule.hora_cierre);
 
-    // Antelación mínima respecto al "ahora" en UTC
     const nowUtc = new Date();
     const minStartUtc = new Date(nowUtc.getTime() + Number(negocio.antelacion_minima_horas) * 60 * 60 * 1000);
     const requestedDay = new Date(date + 'T00:00:00.000Z');
 
-    // Si el día es hoy (UTC), desplazar apertura al mínimo permitido
     if (requestedDay.toISOString().slice(0, 10) === nowUtc.toISOString().slice(0, 10)) {
       const minStartMinutes = minStartUtc.getUTCHours() * 60 + minStartUtc.getUTCMinutes();
       baseOpen = Math.max(baseOpen, minStartMinutes);
     }
 
-    // Si hay empleado, intersectar con su horario
     if (employeeId) {
       const empSchedule = await this.availabilityRepository.getEmpleadoScheduleForDay(employeeId, dayOfWeek);
       if (!empSchedule) {
@@ -57,41 +54,103 @@ class AvailabilityService {
       if (!iOpen) return { negocioId: negocio.id, date, slots: [] };
       baseOpen = iOpen;
       baseClose = iClose;
-    }
 
-    // Rango base para comenzar slots (si no cabe la duración, no hay slots)
-    const latestStart = baseClose - totalDurationMinutes;
-    if (latestStart < baseOpen) return { negocioId: negocio.id, date, slots: [] };
+      const busyIntervals = await this.availabilityRepository.getBusyIntervals({
+        negocioId: negocio.id,
+        date,
+        employeeId,
+      });
 
-    // Citas que bloquean (pendientes/confirmadas/completadas/no_show) y bloqueos
-    const busyIntervals = await this.availabilityRepository.getBusyIntervals({
-      negocioId: negocio.id,
-      date,
-      employeeId,
-    });
+      const availableRanges = subtractRanges([[baseOpen, baseClose]], busyIntervals);
 
-    const availableRanges = subtractRanges([[baseOpen, baseClose]], busyIntervals);
+      const slots = [];
+      const latestStart = baseClose - totalDurationMinutes;
+      if (latestStart >= baseOpen) {
+        for (const [start, end] of availableRanges) {
+          const range = clampRange([start, end], [baseOpen, baseClose]);
+          if (!range) continue;
+          let t = range[0];
 
-    const slots = [];
-    for (const [start, end] of availableRanges) {
-      const range = clampRange([start, end], [baseOpen, baseClose]);
-      if (!range) continue;
-      let t = range[0];
+          if (slotMinutes > 1) {
+            t = Math.ceil(t / slotMinutes) * slotMinutes;
+          }
 
-      // Alinear al grid de slotMinutes
-      if (slotMinutes > 1) {
-        t = Math.ceil(t / slotMinutes) * slotMinutes;
+          while (t <= latestStart && t + totalDurationMinutes <= range[1]) {
+            slots.push({
+              start: minutesToTime(t),
+              end: minutesToTime(t + totalDurationMinutes),
+              durationMinutes: totalDurationMinutes,
+            });
+            t += slotMinutes;
+          }
+        }
       }
 
-      while (t <= latestStart && t + totalDurationMinutes <= range[1]) {
-        slots.push({
-          start: minutesToTime(t),
-          end: minutesToTime(t + totalDurationMinutes),
-          durationMinutes: totalDurationMinutes,
-        });
-        t += slotMinutes;
+      return {
+        negocioId: negocio.id,
+        date,
+        durationMinutes: totalDurationMinutes,
+        slots,
+      };
+    }
+
+    const employees = await this.availabilityRepository.getEmployeesForServices(negocio.id, serviceIds);
+    if (employees.length === 0) {
+      return { negocioId: negocio.id, date, slots: [] };
+    }
+
+    const employeeSlots = new Map();
+    const latestStartGlobal = baseClose - totalDurationMinutes;
+    if (latestStartGlobal < baseOpen) return { negocioId: negocio.id, date, slots: [] };
+
+    for (const emp of employees) {
+      const empSchedule = await this.availabilityRepository.getEmpleadoScheduleForDay(emp.id, dayOfWeek);
+      if (!empSchedule) continue;
+
+      const empOpen = timeToMinutes(empSchedule.hora_apertura);
+      const empClose = timeToMinutes(empSchedule.hora_cierre);
+      const [iOpen, iClose] = intersectRanges([[baseOpen, baseClose]], [[empOpen, empClose]]);
+      if (!iOpen) continue;
+
+      const busyIntervals = await this.availabilityRepository.getBusyIntervals({
+        negocioId: negocio.id,
+        date,
+        employeeId: emp.id,
+      });
+
+      const availableRanges = subtractRanges([[iOpen, iClose]], busyIntervals);
+
+      for (const [start, end] of availableRanges) {
+        const range = clampRange([start, end], [iOpen, iClose]);
+        if (!range) continue;
+        let t = range[0];
+
+        if (slotMinutes > 1) {
+          t = Math.ceil(t / slotMinutes) * slotMinutes;
+        }
+
+        while (t <= latestStartGlobal && t + totalDurationMinutes <= range[1]) {
+          const slotKey = minutesToTime(t);
+          if (!employeeSlots.has(slotKey)) {
+            employeeSlots.set(slotKey, {
+              start: minutesToTime(t),
+              end: minutesToTime(t + totalDurationMinutes),
+              durationMinutes: totalDurationMinutes,
+              availableEmployees: [],
+            });
+          }
+          employeeSlots.get(slotKey).availableEmployees.push({
+            id: emp.id,
+            nombre: emp.nombre,
+          });
+          t += slotMinutes;
+        }
       }
     }
+
+    const slots = Array.from(employeeSlots.values())
+      .filter(slot => slot.availableEmployees.length > 0)
+      .sort((a, b) => a.start.localeCompare(b.start));
 
     return {
       negocioId: negocio.id,

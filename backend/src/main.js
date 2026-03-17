@@ -19,8 +19,12 @@ async function bootstrap() {
   app.use('/uploads', express.static(uploadsPath));
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3001;
-  await app.listen(port);
-  console.log(`Application is running on: ${port}`);
+const host = process.env.HOST || '0.0.0.0'; // Escuchar en todas las interfaces
+
+await app.listen(port, host);
+console.log(`Application is running on: http://${host}:${port}`);
+console.log(`Local access: http://localhost:${port}`);
+console.log(`Network access: http://192.168.1.162:${port}`);
 }
 
 bootstrap();

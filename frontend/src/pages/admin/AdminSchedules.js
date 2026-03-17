@@ -10,7 +10,9 @@ const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', '
 function AdminSchedules() {
   const { user } = useAuth();
   const [employees, setEmployees] = useState([]);
+  const [negocioId, setNegocioId] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [scheduleType, setScheduleType] = useState('employee');
   const [schedules, setSchedules] = useState({});
   const [originalSchedules, setOriginalSchedules] = useState({});
   const [loading, setLoading] = useState(true);
@@ -20,20 +22,20 @@ function AdminSchedules() {
 
   const loadEmployees = async () => {
     try {
-      // First load admin negocios to get negocioId
       const negociosData = await adminApi.getMyNegocios(user.token);
       
       if (negociosData.length > 0) {
-        const negocioId = negociosData[0].id;
+        const negId = negociosData[0].id;
+        setNegocioId(negId);
         
-        // Now load employees
         const data = await adminApi.getEmployees(user.token);
         setEmployees(data);
         if (data.length > 0) {
           setSelectedEmployee(data[0]);
-          loadSchedules(data[0].id, negocioId);
+          loadSchedules('employee', data[0].id, negId);
         } else {
-          setLoading(false);
+          setScheduleType('business');
+          loadSchedules('business', null, negId);
         }
       } else {
         setError('No tienes negocios asignados');
@@ -49,26 +51,39 @@ function AdminSchedules() {
     loadEmployees();
   }, [user?.token]);
 
-  const loadSchedules = async (employeeId, negocioId) => {
+  const loadSchedules = async (type, employeeId, negId) => {
     setLoading(true);
     try {
-      const [empSchedules, busSchedules] = await Promise.all([
-        adminApi.getEmployeeSchedules(user.token, employeeId),
-        adminApi.getBusinessSchedules(user.token, negocioId),
-      ]);
+      let scheduleMap = {};
       
-      // Create schedule map with fallback to business schedules
-      const scheduleMap = {};
-      for (let i = 0; i < 7; i++) {
-        const empSchedule = empSchedules.find(s => s.dia_semana === i);
-        const busSchedule = busSchedules.find(s => s.dia_semana === i);
+      if (type === 'business') {
+        const busSchedules = await adminApi.getBusinessSchedules(user.token, negId);
+        for (let i = 0; i < 7; i++) {
+          const busSchedule = busSchedules.find(s => s.dia_semana === i);
+          scheduleMap[i] = busSchedule || {
+            dia_semana: i,
+            hora_apertura: '09:00',
+            hora_cierre: '18:00',
+            activo: true,
+          };
+        }
+      } else {
+        const [empSchedules, busSchedules] = await Promise.all([
+          adminApi.getEmployeeSchedules(user.token, employeeId),
+          adminApi.getBusinessSchedules(user.token, negId),
+        ]);
         
-        scheduleMap[i] = empSchedule || {
-          dia_semana: i,
-          hora_apertura: busSchedule?.hora_apertura?.substring(0, 5) || '09:00',
-          hora_cierre: busSchedule?.hora_cierre?.substring(0, 5) || '18:00',
-          activo: busSchedule?.activo !== false,
-        };
+        for (let i = 0; i < 7; i++) {
+          const empSchedule = empSchedules.find(s => s.dia_semana === i);
+          const busSchedule = busSchedules.find(s => s.dia_semana === i);
+          
+          scheduleMap[i] = empSchedule || {
+            dia_semana: i,
+            hora_apertura: busSchedule?.hora_apertura?.substring(0, 5) || '09:00',
+            hora_cierre: busSchedule?.hora_cierre?.substring(0, 5) || '18:00',
+            activo: busSchedule?.activo !== false,
+          };
+        }
       }
       
       setSchedules(scheduleMap);
@@ -80,10 +95,19 @@ function AdminSchedules() {
     }
   };
 
+  const handleScheduleTypeChange = (type) => {
+    setScheduleType(type);
+    if (type === 'business') {
+      loadSchedules('business', null, negocioId);
+    } else if (selectedEmployee) {
+      loadSchedules('employee', selectedEmployee.id, negocioId);
+    }
+  };
+
   const handleEmployeeChange = (employeeId) => {
     const employee = employees.find(e => e.id === employeeId);
     setSelectedEmployee(employee);
-    loadSchedules(employeeId, employee.negocio_id);
+    loadSchedules('employee', employeeId, employee.negocio_id);
   };
 
   const handleScheduleChange = (day, field, value) => {
@@ -97,7 +121,7 @@ function AdminSchedules() {
   };
 
   const handleSave = async () => {
-    if (!selectedEmployee) {
+    if (scheduleType === 'employee' && !selectedEmployee) {
       setError('Por favor selecciona un empleado');
       return;
     }
@@ -108,8 +132,14 @@ function AdminSchedules() {
     
     try {
       const horarios = Object.values(schedules);
-      await adminApi.updateEmployeeSchedules(user.token, selectedEmployee.id, { horarios });
-      setSuccess('Horarios guardados correctamente');
+      
+      if (scheduleType === 'business') {
+        await adminApi.updateBusinessSchedules(user.token, negocioId, { horarios });
+        setSuccess('Horarios del negocio guardados correctamente');
+      } else {
+        await adminApi.updateEmployeeSchedules(user.token, selectedEmployee.id, { horarios });
+        setSuccess('Horarios del empleado guardados correctamente');
+      }
       setOriginalSchedules(JSON.parse(JSON.stringify(schedules)));
     } catch (err) {
       setError(err.message || 'Error al guardar horarios');
@@ -120,7 +150,7 @@ function AdminSchedules() {
 
   const hasChanges = JSON.stringify(schedules) !== JSON.stringify(originalSchedules);
 
-  if (loading && !selectedEmployee) {
+  if (loading && !negocioId) {
     return (
       <Container className="py-5 text-center">
         <Spinner animation="border" />
@@ -152,17 +182,42 @@ function AdminSchedules() {
 
       <Card className="mb-4">
         <Card.Body>
-          <Form.Group>
-            <Form.Label>Seleccionar empleado</Form.Label>
-            <Form.Select 
-              value={selectedEmployee?.id || ''}
-              onChange={(e) => handleEmployeeChange(e.target.value)}
-            >
-              {employees.map(emp => (
-                <option key={emp.id} value={emp.id}>{emp.nombre}</option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+          <div className="d-flex gap-3 mb-3">
+            <Form.Check
+              type="radio"
+              name="scheduleType"
+              id="schedule-business"
+              label="Horario del negocio"
+              checked={scheduleType === 'business'}
+              onChange={() => handleScheduleTypeChange('business')}
+            />
+            <Form.Check
+              type="radio"
+              name="scheduleType"
+              id="schedule-employee"
+              label="Horario de empleados"
+              checked={scheduleType === 'employee'}
+              onChange={() => handleScheduleTypeChange('employee')}
+            />
+          </div>
+          
+          {scheduleType === 'employee' && employees.length > 0 && (
+            <Form.Group>
+              <Form.Label>Seleccionar empleado</Form.Label>
+              <Form.Select 
+                value={selectedEmployee?.id || ''}
+                onChange={(e) => handleEmployeeChange(e.target.value)}
+              >
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          )}
+          
+          {scheduleType === 'employee' && employees.length === 0 && (
+            <Alert variant="warning">No hay empleados disponibles</Alert>
+          )}
         </Card.Body>
       </Card>
 

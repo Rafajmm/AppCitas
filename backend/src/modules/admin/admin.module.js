@@ -25,18 +25,12 @@ const { AdminBloqueosRepository } = require('./bloqueos/admin-bloqueos.repositor
 const { AdminCitasController } = require('./citas/admin-citas.controller');
 const { AdminCitasService } = require('./citas/admin-citas.service');
 const { AdminCitasRepository } = require('./citas/admin-citas.repository');
-const { BusinessSchedulesController } = require('./business-schedules/business-schedules.controller');
-const { BusinessSchedulesService } = require('./business-schedules/business-schedules.service');
-const { BusinessSchedulesRepository } = require('./business-schedules/business-schedules.repository');
-const { EmployeeSchedulesController } = require('./employee-schedules/employee-schedules.controller');
-const { EmployeeSchedulesService } = require('./employee-schedules/employee-schedules.service');
-const { EmployeeSchedulesRepository } = require('./employee-schedules/employee-schedules.repository');
 
 class AdminModule {}
 
 Module({
   imports: [DbModule],
-  controllers: [AdminAuthController, AdminNegociosController, AdminServiciosController, AdminEmpleadosController, AdminEmpleadoServicioController, AdminHorariosController, AdminBloqueosController, AdminCitasController, BusinessSchedulesController, EmployeeSchedulesController],
+  controllers: [AdminAuthController, AdminNegociosController, AdminServiciosController, AdminEmpleadosController, AdminEmpleadoServicioController, AdminHorariosController, AdminBloqueosController, AdminCitasController],
   providers: [
     AdminAuthService,
     AdminAuthRepository,
@@ -55,10 +49,6 @@ Module({
     AdminBloqueosRepository,
     AdminCitasService,
     AdminCitasRepository,
-    BusinessSchedulesService,
-    BusinessSchedulesRepository,
-    EmployeeSchedulesService,
-    EmployeeSchedulesRepository,
   ],
 })(AdminModule);
 
