@@ -10,6 +10,7 @@ Module({
   imports: [DbModule],
   controllers: [AvailabilityController],
   providers: [AvailabilityService, AvailabilityRepository],
+  exports: [AvailabilityService], // Exportar AvailabilityService para que otros módulos puedan usarlo
 })(AvailabilityModule);
 
 module.exports = { AvailabilityModule };

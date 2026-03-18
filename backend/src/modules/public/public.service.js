@@ -1,12 +1,14 @@
 const { Inject, Injectable, BadRequestException, NotFoundException } = require('@nestjs/common');
 const { PublicRepository } = require('./public.repository');
 const { EmailService } = require('../email/email.service');
+const { AvailabilityService } = require('../availability/availability.service');
 const { timeToMinutes, minutesToTime, getWeekday0Sunday } = require('../availability/availability.utils');
 
 class PublicService {
-  constructor(publicRepository, emailService) {
+  constructor(publicRepository, emailService, availabilityService) {
     this.publicRepository = publicRepository;
     this.emailService = emailService;
+    this.availabilityService = availabilityService;
   }
 
   async listNegocios() {
@@ -79,10 +81,16 @@ class PublicService {
   }
 
   async getAvailability(slug, date, serviceIds, employeeId) {
-    const negocio = await this.publicRepository.getNegocioBySlug(slug);
-    if (!negocio) throw new NotFoundException('Negocio not found');
+    console.log('🔄 PublicService usando nuevo AvailabilityService:', { slug, date, serviceIds, employeeId });
     
-    return await this.publicRepository.getAvailability(negocio.id, date, serviceIds, employeeId);
+    // Usar el nuevo sistema optimizado con soporte multi-empleado
+    return await this.availabilityService.getSlots({
+      slug,
+      date,
+      serviceIds,
+      employeeId,
+      slotMinutes: 15 // Slots de 15 minutos
+    });
   }
 
   async confirmBooking(token) {
@@ -157,5 +165,6 @@ class PublicService {
 Injectable()(PublicService);
 Inject(PublicRepository)(PublicService, undefined, 0);
 Inject(EmailService)(PublicService, undefined, 1);
+Inject(AvailabilityService)(PublicService, undefined, 2);
 
 module.exports = { PublicService };

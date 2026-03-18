@@ -40,7 +40,7 @@ class AvailabilityRepository {
          AND e.deleted_at IS NULL
          AND e.activo = true
          AND es.servicio_id = ANY($2::uuid[])
-         AND es.deleted_at IS NULL`,
+         AND es.activo = true`,
       [negocioId, serviceIds],
     );
     return rows;

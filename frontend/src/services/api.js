@@ -19,12 +19,30 @@ const API_BASE = getApiBaseUrl();
 const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   
-  // Si la imagen ya tiene URL completa, retornarla
+  // Si la imagen ya tiene URL completa (http o https), extraer solo la ruta relativa
   if (imagePath.startsWith('http')) {
-    return imagePath;
+    try {
+      const url = new URL(imagePath);
+      // Extraer la ruta después de /uploads/
+      const pathname = url.pathname;
+      const cleanPath = pathname.startsWith('/uploads/') ? pathname.substring(8) : pathname;
+      
+      // Construir URL correcta basada en el host actual
+      const currentHost = window.location.hostname;
+      const baseUrl = currentHost !== 'localhost' && currentHost !== '127.0.0.1' 
+        ? `http://${currentHost}:3001` 
+        : 'http://localhost:3001';
+      
+      const finalUrl = `${baseUrl}/uploads/${cleanPath}`;
+      console.log('🖼️ Image URL Debug (from full URL):', { imagePath, currentHost, pathname, cleanPath, finalUrl });
+      return finalUrl;
+    } catch (e) {
+      console.error('Error parsing image URL:', e);
+      return imagePath; // fallback a original
+    }
   }
   
-  // Construir URL base para imágenes
+  // Si es ruta relativa, construir URL basada en host actual
   const currentHost = window.location.hostname;
   const baseUrl = currentHost !== 'localhost' && currentHost !== '127.0.0.1' 
     ? `http://${currentHost}:3001` 
@@ -33,10 +51,11 @@ const getImageUrl = (imagePath) => {
   // Quitar /uploads inicial si existe para evitar duplicación
   const cleanPath = imagePath.startsWith('/uploads/') ? imagePath.substring(8) : 
                     imagePath.startsWith('uploads/') ? imagePath.substring(7) : 
+                    imagePath.startsWith('/') ? imagePath.substring(1) : // Quitar / inicial
                     imagePath;
   
   const finalUrl = `${baseUrl}/uploads/${cleanPath}`;
-  console.log('🖼️ Image URL Debug:', { imagePath, currentHost, baseUrl, cleanPath, finalUrl });
+  console.log('🖼️ Image URL Debug (relative):', { imagePath, currentHost, baseUrl, cleanPath, finalUrl });
   
   return finalUrl;
 };
