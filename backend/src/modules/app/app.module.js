@@ -5,11 +5,12 @@ const { PublicModule } = require('../public/public.module');
 const { EmailModule } = require('../email/email.module');
 const { AdminModule } = require('../admin/admin.module');
 const { SuperadminModule } = require('../superadmin/superadmin.module');
+const { RemindersModule } = require('../reminders/reminders.module');
 
 class AppModule {}
 
 Module({
-  imports: [DbModule, AvailabilityModule, PublicModule, EmailModule, AdminModule, SuperadminModule],
+  imports: [DbModule, AvailabilityModule, PublicModule, EmailModule, RemindersModule, AdminModule, SuperadminModule],
 })(AppModule);
 
 module.exports = { AppModule };

@@ -112,6 +112,93 @@ class EmailService {
       return { sent: false, reason: 'send_failed' };
     }
   }
+
+  async sendBookingReminderEmail({ negocio, cita, toEmail }, options = {}) {
+    const { skipLogging = false } = options;
+
+    console.log('📧 Sending booking reminder email:', {
+      negocio: negocio.nombre,
+      citaId: cita.id,
+      toEmail,
+      hasTransport: !!this.getTransport(),
+    });
+
+    const transport = this.getTransport();
+
+    const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
+    const cancelUrl = `${appBaseUrl}/${negocio.slug}/cancel/${cita.token_cancelacion}`;
+
+    const subject = `Recordatorio: tu cita en ${negocio.nombre} es mañana`;
+    const text = `Hola ${cita.nombre_cliente},\n\nTe recordamos que tienes una cita en ${negocio.nombre} dentro de 24 horas.\n\nFecha: ${cita.fecha}\nHora: ${String(cita.hora_inicio).slice(0,5)}\n\nSi necesitas cancelar tu cita, puedes hacerlo aquí: ${cancelUrl}\n\nSi no solicitaste esta cita, por favor contacta con el negocio.`;
+
+    try {
+      if (!toEmail) {
+        if (!skipLogging) {
+          await this.emailRepository.logEmail({
+            negocioId: negocio.id,
+            citaId: cita.id,
+            destinatario: '(sin email)',
+            asunto: subject,
+            tipo: 'recordatorio_24h',
+            estado: 'fallido',
+            errorMensaje: 'Client email missing',
+          });
+        }
+        return { sent: false, reason: 'missing_email' };
+      }
+
+      if (!transport) {
+        if (!skipLogging) {
+          await this.emailRepository.logEmail({
+            negocioId: negocio.id,
+            citaId: cita.id,
+            destinatario: toEmail,
+            asunto: subject,
+            tipo: 'recordatorio_24h',
+            estado: 'pendiente',
+            errorMensaje: 'SMTP not configured',
+          });
+        }
+        return { sent: false, reason: 'smtp_not_configured', cancelUrl };
+      }
+
+      const result = await transport.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: toEmail,
+        subject,
+        text,
+      });
+
+      console.log('✅ Reminder email sent successfully:', result);
+
+      if (!skipLogging) {
+        await this.emailRepository.logEmail({
+          negocioId: negocio.id,
+          citaId: cita.id,
+          destinatario: toEmail,
+          asunto: subject,
+          tipo: 'recordatorio_24h',
+          estado: 'enviado',
+        });
+      }
+
+      return { sent: true };
+    } catch (err) {
+      console.error('❌ Reminder email sending failed:', err);
+      if (!skipLogging) {
+        await this.emailRepository.logEmail({
+          negocioId: negocio.id,
+          citaId: cita.id,
+          destinatario: toEmail || '(sin email)',
+          asunto: subject,
+          tipo: 'recordatorio_24h',
+          estado: 'fallido',
+          errorMensaje: String(err && err.message ? err.message : err),
+        });
+      }
+      return { sent: false, reason: 'send_failed' };
+    }
+  }
 }
 
 Injectable()(EmailService);

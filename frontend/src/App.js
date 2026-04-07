@@ -8,6 +8,7 @@ import BusinessList from './pages/public/BusinessList';
 import BusinessDetail from './pages/public/BusinessDetail';
 import BookingFlow from './pages/public/BookingFlow';
 import ConfirmationPage from './pages/public/ConfirmationPage';
+import CancellationPage from './pages/public/CancellationPage';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -36,6 +37,7 @@ function App() {
             <Route path="/:slug" element={<BusinessDetail />} />
             <Route path="/:slug/booking" element={<BookingFlow />} />
             <Route path="/:slug/confirm/:token" element={<ConfirmationPage />} />
+            <Route path="/:slug/cancel/:token" element={<CancellationPage />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

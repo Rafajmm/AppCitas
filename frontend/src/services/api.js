@@ -107,6 +107,9 @@ export const publicApi = {
     method: 'POST',
     body: JSON.stringify({ email, name, date, startTime }),
   }),
+  cancelBooking: (token) => fetchWithAuth(`/public/cancel/${token}`, {
+    method: 'POST',
+  }),
 };
 
 // Admin API

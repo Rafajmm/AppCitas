@@ -111,6 +111,24 @@ class PublicService {
     };
   }
 
+  async cancelBooking(token) {
+    const result = await this.publicRepository.cancelBookingByToken(token);
+    if (!result) throw new NotFoundException('Invalid token');
+
+    if (result.alreadyCancelled) {
+      return {
+        message: 'Esta cita ya había sido cancelada anteriormente.',
+        alreadyCancelled: true,
+        booking: result,
+      };
+    }
+
+    return {
+      message: 'Cita cancelada correctamente.',
+      booking: result,
+    };
+  }
+
   async resendConfirmation(email, name, date, startTime) {
     try {
       console.log('Resend confirmation request:', { email, name, date, startTime });

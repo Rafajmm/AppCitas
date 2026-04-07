@@ -191,6 +191,7 @@ CREATE TABLE citas (
     confirmado BOOLEAN NOT NULL DEFAULT false,
     confirmado_en TIMESTAMP WITH TIME ZONE,
     token_confirmacion UUID DEFAULT gen_random_uuid(),
+    token_cancelacion UUID DEFAULT gen_random_uuid(),
     notas_cliente TEXT,
     notas_negocio TEXT,
     precio_total DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK (precio_total >= 0),

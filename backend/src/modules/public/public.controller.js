@@ -54,6 +54,11 @@ class PublicController {
     const { email, name, date, startTime } = req.body;
     return await this.publicService.resendConfirmation(email, name, date, startTime);
   }
+
+  async cancelBooking(req) {
+    const token = req.params.token;
+    return await this.publicService.cancelBooking(token);
+  }
 }
 
 Controller('public')(PublicController);
@@ -78,5 +83,8 @@ Req()(PublicController.prototype, 'confirmBooking', 0);
 
 Post('resend-confirmation')(PublicController.prototype, 'resendConfirmation', Object.getOwnPropertyDescriptor(PublicController.prototype, 'resendConfirmation'));
 Req()(PublicController.prototype, 'resendConfirmation', 0);
+
+Post('cancel/:token')(PublicController.prototype, 'cancelBooking', Object.getOwnPropertyDescriptor(PublicController.prototype, 'cancelBooking'));
+Req()(PublicController.prototype, 'cancelBooking', 0);
 
 module.exports = { PublicController };

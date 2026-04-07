@@ -177,7 +177,7 @@ class PublicRepository {
            $6::date, $7::time, $8::time,
            'pendiente', false, $9, $10, 'web'
          )
-         RETURNING id, negocio_id, empleado_id, fecha, hora_inicio, hora_fin, estado, confirmado, token_confirmacion, precio_total`,
+         RETURNING id, negocio_id, empleado_id, fecha, hora_inicio, hora_fin, estado, confirmado, token_confirmacion, token_cancelacion, precio_total`,
         [
           negocioId,
           employeeId,
@@ -447,6 +447,39 @@ class PublicRepository {
     }
     
     return null; // Token not found
+  }
+
+  async cancelBookingByToken(token) {
+    const { rows } = await this.pool.query(
+      `UPDATE citas
+       SET estado = 'cancelada',
+           cancelado_en = CURRENT_TIMESTAMP,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE token_cancelacion = $1
+         AND deleted_at IS NULL
+         AND estado IN ('pendiente','confirmada')
+       RETURNING id, negocio_id, fecha, hora_inicio, hora_fin, estado`,
+      [token],
+    );
+
+    if (rows.length > 0) return rows[0];
+
+    const { rows: existingRows } = await this.pool.query(
+      `SELECT id, negocio_id, fecha, hora_inicio, hora_fin, estado
+       FROM citas
+       WHERE token_cancelacion = $1
+         AND deleted_at IS NULL`,
+      [token],
+    );
+
+    if (existingRows.length > 0) {
+      const booking = existingRows[0];
+      if (booking.estado === 'cancelada') {
+        return { ...booking, alreadyCancelled: true };
+      }
+    }
+
+    return null;
   }
 }
 
