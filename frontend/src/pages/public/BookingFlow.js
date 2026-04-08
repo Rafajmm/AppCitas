@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Spinner, Form, ListGroup, Alert } from 'react-bootstrap';
-import { ArrowLeft, Clock, Calendar, Person, Envelope, Telephone, CheckCircle, Mailbox, Check2 } from 'react-bootstrap-icons';
+import { ArrowLeft, Clock, Calendar, Person, Envelope, Telephone, CheckCircle, Mailbox, Check2, Whatsapp } from 'react-bootstrap-icons';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { publicApi } from '../../services/api';
@@ -624,7 +624,23 @@ function BookingFlow() {
               </Card.Body>
             </Card>
             
-            <div className="d-flex justify-content-center gap-3">
+            <div className="d-flex justify-content-center gap-3 flex-wrap">
+              {business?.whatsapp && (
+                <Button 
+                  variant="success"
+                  onClick={() => {
+                    const message = encodeURIComponent(`Hola! He realizado una reserva para el ${selectedDate?.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${selectedSlot?.start}. Me gustaría confirmar algunos detalles.`);
+                    window.open(`https://wa.me/${business.whatsapp}?text=${message}`, '_blank');
+                  }}
+                  style={{
+                    background: '#25D366',
+                    borderColor: '#25D366',
+                  }}
+                >
+                  <Whatsapp className="me-2" size={16} />
+                  Contactar por WhatsApp
+                </Button>
+              )}
               <Button 
                 style={{ 
                   background: 'white',

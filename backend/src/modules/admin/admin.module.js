@@ -25,6 +25,7 @@ const { AdminBloqueosRepository } = require('./bloqueos/admin-bloqueos.repositor
 const { AdminCitasController } = require('./citas/admin-citas.controller');
 const { AdminCitasService } = require('./citas/admin-citas.service');
 const { AdminCitasRepository } = require('./citas/admin-citas.repository');
+const { AdminGuard } = require('./auth/admin.guard');
 
 class AdminModule {}
 
@@ -35,6 +36,7 @@ Module({
     AdminAuthService,
     AdminAuthRepository,
     JwtAuthGuard,
+    AdminGuard,
     AdminNegociosService,
     AdminNegociosRepository,
     AdminServiciosService,

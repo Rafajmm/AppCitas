@@ -51,7 +51,7 @@ function NegociosPage() {
     reservas_habilitadas: true,
     antelacion_minima_horas: 2,
     tiempo_confirmacion_minutos: 30,
-    administrador_id: '' // Changed to single admin
+    id_admin: '' // Changed to match backend expectation
   });
 
   const [availableAdmins, setAvailableAdmins] = useState([]);
@@ -68,7 +68,7 @@ function NegociosPage() {
       const adminId = negocioAdmins[0].id; // Take first admin
       setFormData(prev => ({
         ...prev,
-        administrador_id: adminId
+        id_admin: adminId
       }));
     }
   }, [negocioAdmins, editingNegocio]);
@@ -124,9 +124,9 @@ function NegociosPage() {
         : await adminApi.createSuperadminNegocio(user.token, formData);
       
       // Handle admin assignment for both create and update
-      if (formData.administrador_id) {
+      if (formData.id_admin) {
         await adminApi.asignarAdmins(user.token, negocio.id, { 
-          administrador_ids: [formData.administrador_id] 
+          administrador_ids: [formData.id_admin] 
         });
       }
       
@@ -138,30 +138,34 @@ function NegociosPage() {
     }
   };
 
-  const handleEdit = async (negocio) => {
-    setEditingNegocio(negocio);
-    
-    // Load current admins assigned to this negocio
-    await loadNegocioAdmins(negocio.id);
-    
-    setFormData({
-      nombre: negocio.nombre,
-      slug: negocio.slug,
-      descripcion: negocio.descripcion || '',
-      direccion: negocio.direccion || '',
-      telefono: negocio.telefono || '',
-      email: negocio.email || '',
-      color_primario: negocio.color_primario || '#3B82F6',
-      color_secundario: negocio.color_secundario || '#10B981',
-      color_acento: negocio.color_acento || '#c0cc11',
-      whatsapp: negocio.whatsapp || '',
-      web_url: negocio.web_url || '',
-      reservas_habilitadas: negocio.reservas_habilitadas !== false,
-      antelacion_minima_horas: negocio.antelacion_minima_horas || 2,
-      tiempo_confirmacion_minutos: negocio.tiempo_confirmacion_minutos || 30,
-      administrador_id: '' // Will be populated after loading
-    });
-    setShowModal(true);
+  const openEditModal = async (negocio) => {
+    try {
+      // Load negocio admins
+      const adminsResponse = await adminApi.getNegocioAdmins(user.token, negocio.id);
+      setNegocioAdmins(adminsResponse.data);
+
+      setEditingNegocio(negocio);
+      setFormData({
+        nombre: negocio.nombre,
+        slug: negocio.slug,
+        descripcion: negocio.descripcion || '',
+        direccion: negocio.direccion || '',
+        telefono: negocio.telefono || '',
+        email: negocio.email || '',
+        color_primario: negocio.color_primario || '#3B82F6',
+        color_secundario: negocio.color_secundario || '#10B981',
+        color_acento: negocio.color_acento || '#c0cc11',
+        whatsapp: negocio.whatsapp || '',
+        web_url: negocio.web_url || '',
+        reservas_habilitadas: negocio.reservas_habilitadas !== false,
+        antelacion_minima_horas: negocio.antelacion_minima_horas || 2,
+        tiempo_confirmacion_minutos: negocio.tiempo_confirmacion_minutos || 30,
+        id_admin: '' // Will be populated after loading
+      });
+      setShowModal(true);
+    } catch (err) {
+      setError(err.message || 'Error al cargar negocio');
+    }
   };
 
   const handleDeactivate = async (negocioId) => {
@@ -199,7 +203,7 @@ function NegociosPage() {
       reservas_habilitadas: true,
       antelacion_minima_horas: 2,
       tiempo_confirmacion_minutos: 30,
-      administrador_id: '' // Changed to single admin
+      id_admin: '' // Changed to match backend expectation
     });
     setEditingNegocio(null);
     setNegocioAdmins([]);
@@ -451,7 +455,7 @@ function NegociosPage() {
                     <Button
                       variant="outline-primary"
                       size="sm"
-                      onClick={() => handleEdit(negocio)}
+                      onClick={() => openEditModal(negocio)}
                       className="flex-fill"
                       style={{ borderRadius: 'var(--radius-sm)' }}
                     >
@@ -723,9 +727,9 @@ function NegociosPage() {
                 </Form.Label>
                 <Form.Group>
                   <Form.Select
-                    value={formData.administrador_id}
+                    value={formData.id_admin}
                     onChange={(e) => {
-                      setFormData({...formData, administrador_id: e.target.value});
+                      setFormData({...formData, id_admin: e.target.value});
                     }}
                     style={{ 
                       borderRadius: 'var(--radius-sm)'

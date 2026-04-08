@@ -41,6 +41,19 @@ class AdminNegociosRepository {
 
     return rows[0] || null;
   }
+
+  async updateWhatsApp({ adminId, negocioId, whatsapp }) {
+    const { rows } = await this.pool.query(
+      `UPDATE negocios
+       SET whatsapp = $3, updated_at = CURRENT_TIMESTAMP
+       WHERE id_admin = $1 AND id = $2 AND deleted_at IS NULL
+       RETURNING id, nombre, slug, descripcion, logo_url, color_primario, color_secundario, color_acento,
+                 whatsapp, web_url, reservas_habilitadas, antelacion_minima_horas, tiempo_confirmacion_minutos, activo`,
+      [adminId, negocioId, whatsapp],
+    );
+
+    return rows[0] || null;
+  }
 }
 
 Injectable()(AdminNegociosRepository);

@@ -15,6 +15,12 @@ class AdminNegociosService {
     if (!updated) throw new NotFoundException('Negocio not found');
     return updated;
   }
+
+  async updateWhatsApp(adminId, negocioId, { whatsapp }) {
+    const updated = await this.repo.updateWhatsApp({ adminId, negocioId, whatsapp });
+    if (!updated) throw new NotFoundException('Negocio not found');
+    return updated;
+  }
 }
 
 Injectable()(AdminNegociosService);

@@ -10,8 +10,16 @@ const listCitasQuerySchema = Joi.object({
   estado: Joi.string().valid('pendiente', 'confirmada', 'cancelada', 'completada', 'no_show').optional(),
 }).required();
 
+const calendarCitasQuerySchema = Joi.object({
+  negocioId: uuidV4.optional(),
+  empleadoId: uuidV4.optional(),
+  fechaDesde: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
+  fechaHasta: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
+  estado: Joi.string().valid('pendiente', 'confirmada', 'cancelada', 'completada', 'no_show').optional(),
+}).required();
+
 const updateCitaStatusSchema = Joi.object({
   estado: Joi.string().valid('confirmada', 'cancelada', 'completada', 'no_show').required(),
 }).required();
 
-module.exports = { uuidV4, listCitasQuerySchema, updateCitaStatusSchema };
+module.exports = { uuidV4, listCitasQuerySchema, calendarCitasQuerySchema, updateCitaStatusSchema };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Spinner, Badge, ListGroup } from 'react-bootstrap';
-import { ArrowLeft, Clock, Cash, ArrowRight } from 'react-bootstrap-icons';
+import { ArrowLeft, Clock, Cash, ArrowRight, Whatsapp } from 'react-bootstrap-icons';
 import { publicApi, getImageUrl } from '../../services/api';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -170,14 +170,32 @@ function BusinessDetail() {
                   </div>
                 </>
               )}
-              <Button
-                variant="primary"
-                className="w-100"
-                disabled={selectedServices.length === 0}
-                onClick={handleContinue}
-              >
-                Continuar <ArrowRight className="ms-2" />
-              </Button>
+              <div className="d-flex gap-2">
+                {business?.whatsapp && (
+                  <Button
+                    variant="success"
+                    className="flex-shrink-0"
+                    onClick={() => {
+                      const message = encodeURIComponent(`Hola! Estoy interesado en reservar en ${business.nombre}.`);
+                      window.open(`https://wa.me/${business.whatsapp}?text=${message}`, '_blank');
+                    }}
+                    style={{
+                      background: '#25D366',
+                      borderColor: '#25D366',
+                    }}
+                  >
+                    <Whatsapp size={16} />
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  className="w-100"
+                  disabled={selectedServices.length === 0}
+                  onClick={handleContinue}
+                >
+                  Continuar <ArrowRight className="ms-2" />
+                </Button>
+              </div>
             </Card.Body>
           </Card>
         </Col>

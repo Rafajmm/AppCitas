@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, ListGroup, Badge } from 'react-bootstrap';
 import { 
   Shop, Calendar, People, Clock, Ban, BoxArrowRight, 
-  ChevronRight, Palette, CheckCircle, ExclamationCircle, PlayCircle, XCircle
+  ChevronRight, Palette, CheckCircle, ExclamationCircle, PlayCircle, XCircle, Whatsapp
 } from 'react-bootstrap-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { adminApi } from '../../services/api';
@@ -52,11 +52,13 @@ function AdminDashboard() {
   };
 
   const menuItems = [
-    { path: '/admin/appointments', icon: Calendar, label: 'Citas', color: '#3B82F6', bg: '#EBF5FF' },
+    { path: '/admin/calendar', icon: Calendar, label: 'Calendario', color: '#3B82F6', bg: '#EBF5FF' },
+    { path: '/admin/appointments', icon: Calendar, label: 'Citas', color: '#2563EB', bg: '#EFF6FF' },
     { path: '/admin/services', icon: Shop, label: 'Servicios', color: '#10B981', bg: '#ECFDF5' },
     { path: '/admin/employees', icon: People, label: 'Empleados', color: '#8B5CF6', bg: '#F5F3FF' },
     { path: '/admin/schedules', icon: Clock, label: 'Horarios', color: '#F59E0B', bg: '#FFFBEB' },
     { path: '/admin/blockages', icon: Ban, label: 'Bloqueos', color: '#EF4444', bg: '#FEF2F2' },
+    { path: '/admin/whatsapp', icon: Whatsapp, label: 'WhatsApp', color: '#25D366', bg: '#D4F4DD' },
     { path: '/admin/settings', icon: Palette, label: 'Personalización', color: '#EC4899', bg: '#FDF2F8' },
   ];
 

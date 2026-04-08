@@ -1,16 +1,18 @@
 -- Minimal seed data for availability endpoint testing
 
 INSERT INTO administradores (id, nombre, email, password_hash, rol, activo)
-VALUES (gen_random_uuid(), 'Admin Demo', 'admin@demo.com', 'todo_hash', 'admin', true)
+VALUES 
+  (gen_random_uuid(), 'Admin Demo', 'admin@demo.com', '$2b$10$S0I60SaFpilj.2Qg3xLDyuqK8MihM.3WyUvHQaAlWYBTosYW.KO7O', 'admin', true),
+  (gen_random_uuid(), 'Superadmin Demo', 'superadmin@demo.com', '$2b$10$S0I60SaFpilj.2Qg3xLDyuqK8MihM.3WyUvHQaAlWYBTosYW.KO7O', 'superadmin', true)
 ON CONFLICT (email) DO NOTHING;
 
 WITH a AS (
   SELECT id FROM administradores WHERE email = 'admin@demo.com' LIMIT 1
 ), n AS (
-  INSERT INTO negocios (id_admin, nombre, slug, reservas_habilitadas, antelacion_minima_horas, activo)
-  SELECT a.id, 'Peluquería Rafa', 'peluqueria-rafa', true, 2, true
+  INSERT INTO negocios (id_admin, nombre, slug, reservas_habilitadas, antelacion_minima_horas, activo, whatsapp)
+  SELECT a.id, 'Peluquería Rafa', 'peluqueria-rafa', true, 2, true, '34600123456'
   FROM a
-  ON CONFLICT (slug) DO UPDATE SET nombre = EXCLUDED.nombre
+  ON CONFLICT (slug) DO UPDATE SET nombre = EXCLUDED.nombre, whatsapp = EXCLUDED.whatsapp
   RETURNING id
 )
 SELECT 1;
