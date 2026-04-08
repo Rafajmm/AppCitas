@@ -18,7 +18,9 @@ import AdminEmployees from './pages/admin/AdminEmployees';
 import AdminSchedules from './pages/admin/AdminSchedules';
 import AdminBlockages from './pages/admin/AdminBlockages';
 import AdminAppointments from './pages/admin/AdminAppointments';
+import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminSettings from './pages/admin/AdminSettings';
+import WhatsAppSettings from './pages/admin/WhatsAppSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Superadmin Pages
@@ -47,6 +49,8 @@ function App() {
             <Route path="/admin/schedules" element={<ProtectedRoute><AdminSchedules /></ProtectedRoute>} />
             <Route path="/admin/blockages" element={<ProtectedRoute><AdminBlockages /></ProtectedRoute>} />
             <Route path="/admin/appointments" element={<ProtectedRoute><AdminAppointments /></ProtectedRoute>} />
+            <Route path="/admin/calendar" element={<ProtectedRoute><AdminCalendar /></ProtectedRoute>} />
+            <Route path="/admin/whatsapp" element={<ProtectedRoute><WhatsAppSettings /></ProtectedRoute>} />
             <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
             
             {/* Superadmin Routes */}

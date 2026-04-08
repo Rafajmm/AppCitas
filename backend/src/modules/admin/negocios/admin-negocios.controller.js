@@ -26,6 +26,21 @@ class AdminNegociosController {
     return await this.service.updateMyNegocio(req.user.adminId, negocioId, value);
   }
 
+  async updateWhatsApp(req) {
+    const negocioId = req.params.negocioId;
+    const { error: idErr } = uuidV4.required().validate(negocioId);
+    if (idErr) throw new BadRequestException(['Invalid negocioId']);
+
+    const { whatsapp } = req.body;
+    
+    // Validar formato del número de WhatsApp si se proporciona
+    if (whatsapp && !/^\d{10,15}$/.test(whatsapp)) {
+      throw new BadRequestException(['El número de WhatsApp debe contener solo dígitos (10-15 dígitos)']);
+    }
+
+    return await this.service.updateWhatsApp(req.user.adminId, negocioId, { whatsapp });
+  }
+
   async uploadLogo(req) {
     const file = req.file;
     const negocioId = req.params.negocioId;
@@ -84,6 +99,9 @@ Req()(AdminNegociosController.prototype, 'list', 0);
 
 Patch(':negocioId')(AdminNegociosController.prototype, 'patch', Object.getOwnPropertyDescriptor(AdminNegociosController.prototype, 'patch'));
 Req()(AdminNegociosController.prototype, 'patch', 0);
+
+Patch(':negocioId/whatsapp')(AdminNegociosController.prototype, 'updateWhatsApp', Object.getOwnPropertyDescriptor(AdminNegociosController.prototype, 'updateWhatsApp'));
+Req()(AdminNegociosController.prototype, 'updateWhatsApp', 0);
 
 Post(':negocioId/upload-logo')(AdminNegociosController.prototype, 'uploadLogo', Object.getOwnPropertyDescriptor(AdminNegociosController.prototype, 'uploadLogo'));
 UseInterceptors(FileInterceptor('logo'))(AdminNegociosController.prototype, 'uploadLogo', Object.getOwnPropertyDescriptor(AdminNegociosController.prototype, 'uploadLogo'));

@@ -8,10 +8,12 @@ const {
   BadRequestException,
 } = require('@nestjs/common');
 const { JwtAuthGuard } = require('../auth/jwt-auth.guard');
+const { AdminGuard } = require('../auth/admin.guard');
 const { AdminCitasService } = require('./admin-citas.service');
 const {
   uuidV4,
   listCitasQuerySchema,
+  calendarCitasQuerySchema,
   updateCitaStatusSchema,
 } = require('./admin-citas.schemas');
 
@@ -22,6 +24,16 @@ class AdminCitasController {
 
   async list(req) {
     const { value, error } = listCitasQuerySchema.validate(req.query, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+    if (error) throw new BadRequestException(error.details.map((d) => d.message));
+
+    return await this.service.list(req.user.adminId, value);
+  }
+
+  async calendar(req) {
+    const { value, error } = calendarCitasQuerySchema.validate(req.query, {
       abortEarly: false,
       stripUnknown: true,
     });
@@ -51,6 +63,10 @@ Inject(AdminCitasService)(AdminCitasController, undefined, 0);
 
 Get('')(AdminCitasController.prototype, 'list', Object.getOwnPropertyDescriptor(AdminCitasController.prototype, 'list'));
 Req()(AdminCitasController.prototype, 'list', 0);
+
+Get('calendario')(AdminCitasController.prototype, 'calendar', Object.getOwnPropertyDescriptor(AdminCitasController.prototype, 'calendar'));
+UseGuards(AdminGuard)(AdminCitasController.prototype, 'calendar', Object.getOwnPropertyDescriptor(AdminCitasController.prototype, 'calendar'));
+Req()(AdminCitasController.prototype, 'calendar', 0);
 
 Patch(':id')(AdminCitasController.prototype, 'updateStatus', Object.getOwnPropertyDescriptor(AdminCitasController.prototype, 'updateStatus'));
 Req()(AdminCitasController.prototype, 'updateStatus', 0);

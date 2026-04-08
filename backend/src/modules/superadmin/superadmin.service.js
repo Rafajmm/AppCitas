@@ -84,12 +84,10 @@ class SuperadminService {
       throw new ConflictException('Slug already exists');
     }
 
-    // If id_admin is provided, validate it
-    if (data.id_admin) {
-      const admin = await this.repo.findAdminById(data.id_admin);
-      if (!admin) {
-        throw new NotFoundException('Administrator not found');
-      }
+    // Validate id_admin
+    const admin = await this.repo.findAdminById(data.id_admin);
+    if (!admin) {
+      throw new NotFoundException('Administrator not found');
     }
 
     return await this.repo.createNegocio(data);

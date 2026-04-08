@@ -157,6 +157,10 @@ export const adminApi = {
   
   // Negocios
   getMyNegocios: (token) => fetchWithAuth('/admin/negocios', {}, token),
+  updateWhatsApp: (token, negocioId, data) => fetchWithAuth(`/admin/negocios/${negocioId}/whatsapp`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }, token),
   
   // Employees
   getEmployees: (token, params = {}) => {
@@ -217,6 +221,10 @@ export const adminApi = {
     const query = new URLSearchParams(params).toString();
     return fetchWithAuth(`/admin/citas${query ? `?${query}` : ''}`, {}, token);
   },
+  getCalendarAppointments: (token, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return fetchWithAuth(`/admin/citas/calendario${query ? `?${query}` : ''}`, {}, token);
+  },
   updateAppointmentStatus: (token, id, estado) => fetchWithAuth(`/admin/citas/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({ estado }),
@@ -245,8 +253,14 @@ export const adminApi = {
   
   // Negocios
   getSuperadminNegocios: (token, params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return fetchWithAuth(`/superadmin/negocios${query ? `?${query}` : ''}`, {}, token);
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.activo !== undefined) queryParams.append('activo', params.activo);
+    
+    const queryString = queryParams.toString();
+    return fetchWithAuth(`/superadmin/negocios${queryString ? `?${queryString}` : ''}`, {}, token);
   },
   createSuperadminNegocio: (token, data) => fetchWithAuth('/superadmin/negocios', {
     method: 'POST',

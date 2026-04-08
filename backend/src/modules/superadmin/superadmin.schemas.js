@@ -31,6 +31,7 @@ const crearNegocioSchema = Joi.object({
   reservas_habilitadas: Joi.boolean().default(true),
   antelacion_minima_horas: Joi.number().integer().min(0).default(2),
   tiempo_confirmacion_minutos: Joi.number().integer().min(0).default(30),
+  id_admin: Joi.string().uuid().required(),
 });
 
 const actualizarNegocioSchema = Joi.object({
