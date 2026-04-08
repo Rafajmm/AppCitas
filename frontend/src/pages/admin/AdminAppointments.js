@@ -18,6 +18,11 @@ function AdminAppointments() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
 
   const loadAppointments = async (queryParams = {}) => {
     setLoading(true);
@@ -34,6 +39,14 @@ function AdminAppointments() {
   useEffect(() => {
     loadAppointments();
   }, [user?.token]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleFilter = () => {
     const params = {};
@@ -106,7 +119,7 @@ function AdminAppointments() {
         <Card className="mb-4">
           <Card.Body>
             <Row>
-              <Col md={3}>
+              <Col xs={12} md={3}>
                 <Form.Group>
                   <Form.Label>Estado</Form.Label>
                   <Form.Select
@@ -122,7 +135,7 @@ function AdminAppointments() {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={3}>
+              <Col xs={12} md={3}>
                 <Form.Group>
                   <Form.Label>Fecha desde</Form.Label>
                   <Form.Control
@@ -132,7 +145,7 @@ function AdminAppointments() {
                   />
                 </Form.Group>
               </Col>
-              <Col md={3}>
+              <Col xs={12} md={3}>
                 <Form.Group>
                   <Form.Label>Fecha hasta</Form.Label>
                   <Form.Control
@@ -142,9 +155,9 @@ function AdminAppointments() {
                   />
                 </Form.Group>
               </Col>
-              <Col md={3} className="d-flex align-items-end">
-                <div>
-                  <Button variant="primary" className="me-2" onClick={handleFilter}>
+              <Col xs={12} md={3} className="d-flex align-items-end">
+                <div className="d-flex gap-2 flex-wrap">
+                  <Button variant="primary" onClick={handleFilter}>
                     Aplicar
                   </Button>
                   <Button variant="outline-secondary" onClick={handleClearFilters}>
@@ -159,88 +172,167 @@ function AdminAppointments() {
 
       <Card>
         <Card.Body>
-          <div className="table-responsive">
-            <Table hover>
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Fecha/Hora</th>
-                  <th>Servicios</th>
-                  <th>Total</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((apt) => (
-                  <tr key={apt.id} className="cursor-pointer" onClick={() => openDetail(apt)}>
-                    <td>
-                      <strong>{apt.nombre_cliente}</strong>
-                      <div className="text-muted small">{apt.email_cliente}</div>
-                      {apt.telefono_cliente && <div className="text-muted small">{apt.telefono_cliente}</div>}
-                    </td>
-                    <td>
-                      <div>{formatDate(apt.fecha)}</div>
+          {isMobile ? (
+            // Mobile view - Cards
+            <div className="d-flex flex-column gap-3">
+              {appointments.map((apt) => (
+                <Card key={apt.id} className="cursor-pointer" onClick={() => openDetail(apt)}>
+                  <Card.Body>
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <strong>{apt.nombre_cliente}</strong>
+                        <div className="text-muted small">{apt.email_cliente}</div>
+                        {apt.telefono_cliente && <div className="text-muted small">{apt.telefono_cliente}</div>}
+                      </div>
+                      {getStatusBadge(apt.estado)}
+                    </div>
+                    
+                    <div className="mb-2">
+                      <div className="small fw-bold">{formatDate(apt.fecha)}</div>
                       <div className="text-muted small">{apt.hora_inicio?.substring(0, 5)} - {apt.hora_fin?.substring(0, 5)}</div>
-                    </td>
-                    <td>
+                    </div>
+                    
+                    <div className="mb-2">
                       {Array.isArray(apt.servicios) && apt.servicios.slice(0, 2).map((s, i) => (
                         <div key={i} className="small">{s.nombre_servicio}</div>
                       ))}
                       {Array.isArray(apt.servicios) && apt.servicios.length > 2 && (
                         <div className="text-muted small">+{apt.servicios.length - 2} más</div>
                       )}
-                    </td>
-                    <td className="fw-bold">{parseFloat(apt.precio_total).toFixed(2)}€</td>
-                    <td>{getStatusBadge(apt.estado)}</td>
-                    <td onClick={(e) => e.stopPropagation()}>
-                      {apt.estado === 'pendiente' && (
-                        <Button
-                          variant="outline-success"
-                          size="sm"
-                          className="me-1"
-                          onClick={() => handleStatusChange(apt.id, 'confirmada')}
-                          title="Confirmar"
-                        >
-                          <CheckCircle />
-                        </Button>
-                      )}
-                      {apt.estado === 'confirmada' && (
-                        <>
+                    </div>
+                    
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div className="fw-bold">{parseFloat(apt.precio_total).toFixed(2)}€</div>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        {apt.estado === 'pendiente' && (
                           <Button
-                            variant="outline-primary"
+                            variant="outline-success"
                             size="sm"
-                            className="me-1"
-                            onClick={() => handleStatusChange(apt.id, 'completada')}
-                            title="Completar"
+                            onClick={() => handleStatusChange(apt.id, 'confirmada')}
+                            title="Confirmar"
                           >
-                            <CheckAll />
+                            <CheckCircle />
                           </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            className="me-1"
-                            onClick={() => handleStatusChange(apt.id, 'cancelada')}
-                            title="Cancelar"
-                          >
-                            <XCircle />
-                          </Button>
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            onClick={() => handleStatusChange(apt.id, 'no_show')}
-                            title="No Show"
-                          >
-                            <PersonX />
-                          </Button>
-                        </>
-                      )}
-                    </td>
+                        )}
+                        {apt.estado === 'confirmada' && (
+                          <div className="d-flex gap-1">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => handleStatusChange(apt.id, 'completada')}
+                              title="Completar"
+                            >
+                              <CheckAll />
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleStatusChange(apt.id, 'cancelada')}
+                              title="Cancelar"
+                            >
+                              <XCircle />
+                            </Button>
+                            <Button
+                              variant="outline-secondary"
+                              size="sm"
+                              onClick={() => handleStatusChange(apt.id, 'no_show')}
+                              title="No Show"
+                            >
+                              <PersonX />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Card.Body>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            // Desktop view - Table
+            <div className="table-responsive">
+              <Table hover>
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Fecha/Hora</th>
+                    <th>Servicios</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+                </thead>
+                <tbody>
+                  {appointments.map((apt) => (
+                    <tr key={apt.id} className="cursor-pointer" onClick={() => openDetail(apt)}>
+                      <td>
+                        <strong>{apt.nombre_cliente}</strong>
+                        <div className="text-muted small">{apt.email_cliente}</div>
+                        {apt.telefono_cliente && <div className="text-muted small">{apt.telefono_cliente}</div>}
+                      </td>
+                      <td>
+                        <div>{formatDate(apt.fecha)}</div>
+                        <div className="text-muted small">{apt.hora_inicio?.substring(0, 5)} - {apt.hora_fin?.substring(0, 5)}</div>
+                      </td>
+                      <td>
+                        {Array.isArray(apt.servicios) && apt.servicios.slice(0, 2).map((s, i) => (
+                          <div key={i} className="small">{s.nombre_servicio}</div>
+                        ))}
+                        {Array.isArray(apt.servicios) && apt.servicios.length > 2 && (
+                          <div className="text-muted small">+{apt.servicios.length - 2} más</div>
+                        )}
+                      </td>
+                      <td className="fw-bold">{parseFloat(apt.precio_total).toFixed(2)}€</td>
+                      <td>{getStatusBadge(apt.estado)}</td>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        {apt.estado === 'pendiente' && (
+                          <Button
+                            variant="outline-success"
+                            size="sm"
+                            className="me-1"
+                            onClick={() => handleStatusChange(apt.id, 'confirmada')}
+                            title="Confirmar"
+                          >
+                            <CheckCircle />
+                          </Button>
+                        )}
+                        {apt.estado === 'confirmada' && (
+                          <>
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              className="me-1"
+                              onClick={() => handleStatusChange(apt.id, 'completada')}
+                              title="Completar"
+                            >
+                              <CheckAll />
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              className="me-1"
+                              onClick={() => handleStatusChange(apt.id, 'cancelada')}
+                              title="Cancelar"
+                            >
+                              <XCircle />
+                            </Button>
+                            <Button
+                              variant="outline-secondary"
+                              size="sm"
+                              onClick={() => handleStatusChange(apt.id, 'no_show')}
+                              title="No Show"
+                            >
+                              <PersonX />
+                            </Button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
           
           {appointments.length === 0 && !loading && (
             <p className="text-muted text-center py-4">No hay citas que mostrar</p>
