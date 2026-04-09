@@ -9,12 +9,14 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import esLocale from '@fullcalendar/core/locales/es';
 
 function AdminBlockages() {
   const { user } = useAuth();
   const [blockages, setBlockages] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [negocio, setNegocio] = useState(null);
+  const [businessHours, setBusinessHours] = useState({ start: '08:00', end: '20:00' });
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
@@ -56,6 +58,22 @@ function AdminBlockages() {
         const negocioId = activeNegocio.id;
         setNegocio(activeNegocio);
         setFormData(prev => ({ ...prev, negocioId }));
+        
+        // Load business schedules
+        try {
+          const schedulesData = await adminApi.getBusinessSchedules(user.token, negocioId);
+          if (schedulesData && schedulesData.length > 0) {
+            const todaySchedule = schedulesData.find(s => s.dia_semana === new Date().getDay());
+            if (todaySchedule && todaySchedule.hora_apertura && todaySchedule.hora_cierre) {
+              setBusinessHours({
+                start: todaySchedule.hora_apertura.slice(0, 5),
+                end: todaySchedule.hora_cierre.slice(0, 5)
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('Could not load business hours, using defaults');
+        }
         
         // Now load blockages and employees with negocioId
         const [blockData, empData] = await Promise.all([
@@ -209,13 +227,50 @@ function AdminBlockages() {
     return map;
   }, [employees]);
 
+  const employeeColors = useMemo(() => {
+    return [
+      '#3B82F6', '#EF4444', '#10B981', '#F59E0B', 
+      '#8B5CF6', '#EC4899', '#14B8A6', '#F97316',
+      '#6366F1', '#84CC16', '#06B6D4', '#A855F7'
+    ];
+  }, []);
+
+  const getEventColor = useCallback((blockage) => {
+    // Business blockages (no empleado_id) use primary color (green from negocio)
+    if (!blockage.empleado_id || blockage.empleado_id === null) {
+      return calendarColors.primary; // Business blockages - green
+    }
+    // Employee blockages use unique colors based on UUID hash
+    // Convert UUID string to consistent numeric hash
+    let hash = 0;
+    for (let i = 0; i < blockage.empleado_id.length; i++) {
+      const char = blockage.empleado_id.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const colorIndex = Math.abs(hash) % employeeColors.length;
+    const selectedColor = employeeColors[colorIndex];
+    
+    // Debug logging
+    console.log('Blockage:', {
+      id: blockage.id,
+      empleado_id: blockage.empleado_id,
+      hash,
+      colorIndex,
+      selectedColor,
+      availableColors: employeeColors
+    });
+    
+    return selectedColor;
+  }, [calendarColors.primary, employeeColors]);
+
   const calendarEvents = useMemo(() => {
     return blockages.map((b) => {
       const timing = computeEventTiming(b);
       const isGlobal = !b.empleado_id;
       const empName = b.empleado_nombre || employeeById.get(b.empleado_id)?.nombre;
       const title = isGlobal ? `🏢 ${b.titulo}` : `${empName || 'Empleado'}: ${b.titulo}`;
-      const color = isGlobal ? calendarColors.secondary : calendarColors.primary;
+      const color = getEventColor(b);
 
       return {
         id: b.id,
@@ -227,7 +282,7 @@ function AdminBlockages() {
         ...timing,
       };
     });
-  }, [blockages, calendarColors.primary, calendarColors.secondary, employeeById, computeEventTiming]);
+  }, [blockages, employeeById, computeEventTiming, getEventColor]);
 
   const openEditModal = (blockage) => {
     setError('');
@@ -289,13 +344,41 @@ function AdminBlockages() {
     const x = window.innerWidth / 2 - 160; // 160 = half of popover width (320)
     const y = window.innerHeight / 2 - 200; // 200 = half of approximate popover height
 
-    // FullCalendar returns end as exclusive for allDay selections
-    const startStr = toDateOnly(selectInfo.start);
-    const endStr = selectInfo.allDay
-      ? toDateOnly(new Date(selectInfo.end.getTime() - 24 * 60 * 60 * 1000))
-      : toDateOnly(selectInfo.end);
+    let startStr, endStr, isSingleDay;
+    
+    if (selectInfo.allDay) {
+      // All-day selection
+      startStr = toDateOnly(selectInfo.start);
+      endStr = toDateOnly(new Date(selectInfo.end.getTime() - 24 * 60 * 60 * 1000));
+      isSingleDay = startStr === endStr;
+    } else {
+      // Time range selection
+      startStr = toDateOnly(selectInfo.start);
+      endStr = toDateOnly(selectInfo.start); // Time selections are always same day
+      isSingleDay = true;
+      
+      // Store the time range for the popover
+      const startTime = selectInfo.start.toTimeString().slice(0, 5);
+      const endTime = selectInfo.end.toTimeString().slice(0, 5);
+      
+      positionQuickMenu(x, y);
+      setQuickMenu({ 
+        x, y, 
+        startStr, 
+        endStr, 
+        allDay: false, 
+        isSingleDay,
+        startTime,
+        endTime
+      });
+      setQuickEmployeeId('');
+      setQuickSpecialHoursEnabled(false);
+      setShowQuickMenu(true);
 
-    const isSingleDay = startStr === endStr;
+      const api = calendarRef.current?.getApi();
+      if (api) api.unselect();
+      return;
+    }
 
     positionQuickMenu(x, y);
     setQuickMenu({ x, y, startStr, endStr, allDay: selectInfo.allDay, isSingleDay });
@@ -340,6 +423,34 @@ function AdminBlockages() {
         hora_inicio: '',
         hora_fin: '',
         titulo: 'Bloqueo Programado',
+      }, { hideModal: true });
+      return;
+    }
+
+    if (mode === 'time_range') {
+      await submitBlockage({
+        ...base,
+        empleadoId: null,
+        fecha_fin: quickMenu.startStr,
+        hora_inicio: quickMenu.startTime,
+        hora_fin: quickMenu.endTime,
+        titulo: 'Bloqueo Horario',
+      }, { hideModal: true });
+      return;
+    }
+
+    if (mode === 'employee_time') {
+      if (!quickEmployeeId) {
+        setError('Selecciona un empleado');
+        return;
+      }
+      await submitBlockage({
+        ...base,
+        empleadoId: quickEmployeeId,
+        fecha_fin: quickMenu.startStr,
+        hora_inicio: quickMenu.startTime,
+        hora_fin: quickMenu.endTime,
+        titulo: 'Bloqueo Horario',
       }, { hideModal: true });
       return;
     }
@@ -399,6 +510,8 @@ function AdminBlockages() {
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            locale={esLocale}
+            firstDay={1}
             initialView={isMobile ? 'dayGridMonth' : 'dayGridMonth'}
             headerToolbar={isMobile ? {
               left: 'prev,next',
@@ -407,32 +520,42 @@ function AdminBlockages() {
             } : {
               left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay',
+              right: 'dayGridMonth,timeGridWeek',
             }}
             footerToolbar={isMobile ? {
               left: 'dayGridMonth',
               center: 'timeGridWeek',
-              right: 'timeGridDay',
+              right: '',
             } : undefined}
             buttonText={{
-              today: 'today',
-              month: 'month',
-              week: 'week',
-              day: 'day',
+              today: 'Hoy',
+              month: 'Mes',
+              week: 'Semana',
+              day: 'Día',
             }}
             weekends
             expandRows
             height="auto"
             aspectRatio={isMobile ? 0.85 : 1.35}
+            slotMinTime={businessHours.start}
+            slotMaxTime={businessHours.end}
+            hiddenDays={[]}
+            allDaySlot={false}
             selectable
             selectMirror
-            dayMaxEvents
+            dayMaxEvents={isMobile ? 2 : undefined}
+            eventTimeFormat={{
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }}
             eventDisplay="block"
             eventDidMount={(info) => {
               if (info.el) {
                 info.el.style.borderRadius = '8px';
-                info.el.style.padding = '2px 6px';
-                info.el.style.fontSize = isMobile ? '12px' : '13px';
+                info.el.style.padding = isMobile ? '1px 4px' : '2px 6px';
+                info.el.style.fontSize = isMobile ? '10px' : '13px';
+                info.el.style.minHeight = isMobile ? '20px' : 'auto';
               }
             }}
             select={onCalendarSelect}
@@ -464,84 +587,130 @@ function AdminBlockages() {
               <Popover.Header as="h3">Crear bloqueo</Popover.Header>
               <Popover.Body>
                 <div className="mb-2">
-                  <div className="small text-muted">{quickMenu.startStr}{quickMenu.endStr && quickMenu.endStr !== quickMenu.startStr ? ` → ${quickMenu.endStr}` : ''}</div>
+                  {quickMenu.startTime ? (
+                    <div className="small text-muted">
+                      {quickMenu.startStr} de {quickMenu.startTime} a {quickMenu.endTime}
+                    </div>
+                  ) : (
+                    <div className="small text-muted">{quickMenu.startStr}{quickMenu.endStr && quickMenu.endStr !== quickMenu.startStr ? `  ${quickMenu.endStr}` : ''}</div>
+                  )}
                 </div>
 
                 <div className="d-grid gap-2">
-                  <Button
-                    variant="danger"
-                    onClick={() => createQuickBlockage({ mode: 'business' })}
-                    disabled={saving}
-                  >
-                    Cerrar Negocio
-                  </Button>
-
-                  <div>
-                    <Form.Label className="small mb-1">Cerrar Empleado</Form.Label>
-                    <div className="d-flex gap-2">
-                      <Form.Select
-                        value={quickEmployeeId}
-                        onChange={(e) => setQuickEmployeeId(e.target.value)}
-                        disabled={saving}
-                      >
-                        <option value="">Selecciona empleado…</option>
-                        {employees
-                          .filter((e) => e.activo !== false)
-                          .map((emp) => (
-                            <option key={emp.id} value={emp.id}>{emp.nombre}</option>
-                          ))}
-                      </Form.Select>
+                  {quickMenu.startTime ? (
+                    // Time range selection - show quick options
+                    <>
                       <Button
-                        variant="primary"
-                        onClick={() => createQuickBlockage({ mode: 'employee' })}
+                        variant="danger"
+                        onClick={() => createQuickBlockage({ mode: 'time_range' })}
                         disabled={saving}
                       >
-                        Crear
+                        Cerrar Negocio ({quickMenu.startTime}-{quickMenu.endTime})
                       </Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <Form.Label className="small mb-1">Horario Especial (solo 1 día)</Form.Label>
-                      <Form.Check
-                        type="switch"
-                        checked={quickSpecialHoursEnabled}
-                        onChange={(e) => setQuickSpecialHoursEnabled(e.target.checked)}
-                        disabled={saving || !quickMenu.isSingleDay}
-                      />
-                    </div>
-
-                    {quickSpecialHoursEnabled && (
-                      <Row className="g-2">
-                        <Col>
-                          <Form.Control
-                            type="time"
-                            value={quickHoraInicio}
-                            onChange={(e) => setQuickHoraInicio(e.target.value)}
+                      <div>
+                        <Form.Label className="small mb-1">Cerrar Empleado</Form.Label>
+                        <div className="d-flex gap-2">
+                          <Form.Select
+                            value={quickEmployeeId}
+                            onChange={(e) => setQuickEmployeeId(e.target.value)}
                             disabled={saving}
-                          />
-                        </Col>
-                        <Col>
-                          <Form.Control
-                            type="time"
-                            value={quickHoraFin}
-                            onChange={(e) => setQuickHoraFin(e.target.value)}
-                            disabled={saving}
-                          />
-                        </Col>
-                        <Col xs="auto">
+                          >
+                            <option value="">Selecciona empleado...</option>
+                            {employees
+                              .filter((e) => e.activo !== false)
+                              .map((emp) => (
+                                <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                              ))}
+                          </Form.Select>
                           <Button
-                            variant="success"
-                            onClick={() => createQuickBlockage({ mode: 'special_hours' })}
+                            variant="primary"
+                            onClick={() => createQuickBlockage({ mode: 'employee_time' })}
                             disabled={saving}
                           >
                             Crear
                           </Button>
-                        </Col>
-                      </Row>
-                    )}
-                  </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    // All-day selection
+                    <>
+                      <Button
+                        variant="danger"
+                        onClick={() => createQuickBlockage({ mode: 'business' })}
+                        disabled={saving}
+                      >
+                        Cerrar Negocio
+                      </Button>
+
+                      <div>
+                        <Form.Label className="small mb-1">Cerrar Empleado</Form.Label>
+                        <div className="d-flex gap-2">
+                          <Form.Select
+                            value={quickEmployeeId}
+                            onChange={(e) => setQuickEmployeeId(e.target.value)}
+                            disabled={saving}
+                          >
+                            <option value="">Selecciona empleado...</option>
+                            {employees
+                              .filter((e) => e.activo !== false)
+                              .map((emp) => (
+                                <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                              ))}
+                          </Form.Select>
+                          <Button
+                            variant="primary"
+                            onClick={() => createQuickBlockage({ mode: 'employee' })}
+                            disabled={saving}
+                          >
+                            Crear
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <Form.Label className="small mb-1">Horario Especial (solo 1 día)</Form.Label>
+                          <Form.Check
+                            type="switch"
+                            checked={quickSpecialHoursEnabled}
+                            onChange={(e) => setQuickSpecialHoursEnabled(e.target.checked)}
+                            disabled={saving || !quickMenu.isSingleDay}
+                          />
+                        </div>
+
+                        {quickSpecialHoursEnabled && (
+                          <Row className="g-2">
+                            <Col>
+                              <Form.Control
+                                type="time"
+                                value={quickHoraInicio}
+                                onChange={(e) => setQuickHoraInicio(e.target.value)}
+                                disabled={saving}
+                              />
+                            </Col>
+                            <Col>
+                              <Form.Control
+                                type="time"
+                                value={quickHoraFin}
+                                onChange={(e) => setQuickHoraFin(e.target.value)}
+                                disabled={saving}
+                              />
+                            </Col>
+                            <Col xs="auto">
+                              <Button
+                                variant="success"
+                                onClick={() => createQuickBlockage({ mode: 'special_hours' })}
+                                disabled={saving}
+                              >
+                                Crear
+                              </Button>
+                            </Col>
+                          </Row>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </Popover.Body>
             </Popover>
